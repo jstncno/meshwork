@@ -33,7 +33,7 @@ def process_record(record):
         payload = record.payload.read()
         headers, body = payload.split('\r\n\r\n', 1)
         if 'Content-Type: text/html' in headers:
-            url = urlparse(record['WARC-Target-URI']).netloc
+            url = urlparse(record['WARC-Target-URI']).netloc.replace('www.', '')
             links = get_links(body)
             if links:
                 return url, links
@@ -42,7 +42,7 @@ def process_record(record):
 def write_to_local_file(data):
     global COUNTER
     ext = '-{}'.format(str(COUNTER).zfill(5))
-    filename = PATH[1].replace('.warc.gz', ext)
+    filename = 'warc-edges{}'.format(ext)
     tempfile = open(filename, 'a+')
 
     statinfo = os.stat(filename)
@@ -71,7 +71,7 @@ start = time.time()
 
 conn = boto.connect_s3(anon=True)
 bucket = conn.get_bucket(BUCKET_NAME)
-with open('warc-50.paths', 'r') as f:
+with open('warc-100.paths', 'r') as f:
     global BUCKET_NAME, KEY, PATH, DIR
     for line in f:
         KEY = line.strip()
@@ -96,7 +96,7 @@ with open('warc-50.paths', 'r') as f:
         print 'Time elapsed: {}'.format(file_end-file_start)
 
 ext = '-{}'.format(str(COUNTER).zfill(5))
-filename = PATH[1].replace('.warc.gz', ext)
+filename = 'warc-edges{}'.format(ext)
 copy_to_HDFS(filename)
 
 end = time.time()
