@@ -1,4 +1,4 @@
-import re, boto, gzip, warc, os
+import re, boto, gzip, warc, os, time
 from urlparse import urlparse
 from collections import Counter
 from boto.s3.key import Key
@@ -48,7 +48,7 @@ def write_to_local_file(data):
     statinfo = os.stat(filename)
     tempfile_size = statinfo.st_size/float(1024*1024) # size in MB
     if tempfile_size >= 128:
-        print "Loading next file!"
+        print 'Loading next file!'
         COUNTER += 1
         tempfile.close()
         copy_to_HDFS(filename)
@@ -66,24 +66,40 @@ def copy_to_HDFS(filename):
     os.system('hdfs dfs -copyFromLocal {} {}'.format(filename, hdfs_filename))
     os.system('rm {}'.format(filename))
 
+print 'Starting transfer...'
+start = time.time()
+
 conn = boto.connect_s3(anon=True)
 bucket = conn.get_bucket(BUCKET_NAME)
-with open('warc-10.paths', 'r') as f:
+with open('warc-50.paths', 'r') as f:
     global BUCKET_NAME, KEY, PATH, DIR
     for line in f:
         KEY = line.strip()
 
-    PATH = os.path.split(KEY)
-    DIR = PATH[0]
+        PATH = os.path.split(KEY)
+        DIR = PATH[0]
 
-    k = Key(bucket, KEY)
-    f = warc.WARCFile(fileobj=GzipStreamFile(k))
+        print 'Transferring {}...'.format(KEY)
+        file_start = time.time()
 
-    for record in f:
-        if record['Content-Type'] == 'application/http; msgtype=response':
-            url, links = process_record(record)
-            if links:
-                for link in links:
-                    write_to_local_file('({}, {})\n'.format(url, link))
+        k = Key(bucket, KEY)
+        f = warc.WARCFile(fileobj=GzipStreamFile(k))
 
+        for record in f:
+            if record['Content-Type'] == 'application/http; msgtype=response':
+                url, links = process_record(record)
+                if links:
+                    for link in links:
+                        write_to_local_file('({}, {})\n'.format(url, link))
+        file_end = time.time()
+        print 'File transfer complete!'
+        print 'Time elapsed: {}'.format(file_end-file_start)
+
+ext = '-{}'.format(str(COUNTER).zfill(5))
+filename = PATH[1].replace('.warc.gz', ext)
+copy_to_HDFS(filename)
+
+end = time.time()
+print 'Transfer complete!'
+print 'Time elapsed: {}'.format(end-start)
 
