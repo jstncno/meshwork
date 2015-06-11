@@ -27,10 +27,30 @@ def process_record(record):
             return url, links
     return None, None
 
+COUNTER = 0
+def write_to_local_file(data):
+    global COUNTER
+    ext = '-{}'.format(str(COUNTER).zfill(5))
+    filename = PATH[1].replace('.warc.gz', ext)
+    tempfile = open(filename, 'a')
+    statinfo = os.stat(filename)
+    tempfile_size = statinfo.st_size/float(1024*1024) # size in MB
+    if tempfile_size >= 128:
+        COUNTER += 1
+        tempfile.close()
+        write_to_file(data)
+        return
+    else:
+        tempfile.write(data)
+    tempfile.close()
+
 BUCKET_NAME = 'aws-publicdatasets'
 KEY = None
 with open('warc.path', 'r') as f:
     KEY = f.read().strip()
+
+PATH = os.path.split(KEY)
+DIR = PATH[0]
 
 conn = boto.connect_s3(anon=True)
 bucket = conn.get_bucket(BUCKET_NAME)
@@ -42,14 +62,7 @@ for record in f:
         url, links = process_record(record)
         if links:
             for link in links:
-                with open('temp.txt', 'a') as tempfile:
-                    tempfile.write('({}, {})\n'.format(url, link))
+                write_to_local_file('({}, {})\n'.format(url, link))
             break
 
 
-import sys
-sys.exit()
-
-for record in f:
-    for key, value in process_record(record):
-        print key, value
