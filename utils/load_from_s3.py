@@ -42,9 +42,9 @@ for record in f:
         url, links = process_record(record)
         if links:
             for link in links:
-                print url, link
+                with open('temp.txt', 'a') as tempfile:
+                    tempfile.write('({}, {})\n'.format(url, link))
             break
-    #with open('temp.txt', 'a') as tempfile:
 
 
 import sys
