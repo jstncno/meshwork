@@ -15,7 +15,7 @@ assert get_tag_count('<html><a href="..."></a><h1 /><br/><p><p></p></p>') == {'h
 
 def get_links(data):
     links = re.findall(r'href=[\'"]?([^\'" >]+)', data)
-    return map(lambda link: urlparse(link).netloc, links)
+    return set(map(lambda link: urlparse(link).netloc, links))
     #return ', '.join(links)
 
 def process_record(record):
