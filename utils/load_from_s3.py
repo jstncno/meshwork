@@ -15,7 +15,11 @@ assert get_tag_count('<html><a href="..."></a><h1 /><br/><p><p></p></p>') == {'h
 
 def get_links(data):
     links = re.findall(r'href=[\'"]?([^\'" >]+)', data)
-    return [l for l in set(map(lambda link: urlparse(link).netloc, links)) if l]
+    try:
+        links = set(map(lambda link: urlparse(link).netloc, links))
+        return [l.replace('www.', '') for l in links if l]
+    except ValueError:
+        return None
 
 def process_record(record):
     if record['Content-Type'] == 'application/http; msgtype=response':
@@ -24,7 +28,8 @@ def process_record(record):
         if 'Content-Type: text/html' in headers:
             url = urlparse(record['WARC-Target-URI']).netloc
             links = get_links(body)
-            return url, links
+            if links:
+                return url, links
     return None, None
 
 COUNTER = 0
@@ -32,16 +37,19 @@ def write_to_local_file(data):
     global COUNTER
     ext = '-{}'.format(str(COUNTER).zfill(5))
     filename = PATH[1].replace('.warc.gz', ext)
-    tempfile = open(filename, 'a')
+    tempfile = open(filename, 'a+')
+
     statinfo = os.stat(filename)
     tempfile_size = statinfo.st_size/float(1024*1024) # size in MB
     if tempfile_size >= 128:
+        print "Loading next file!"
         COUNTER += 1
         tempfile.close()
-        write_to_file(data)
+        write_to_local_file(data)
         return
     else:
         tempfile.write(data)
+
     tempfile.close()
 
 BUCKET_NAME = 'aws-publicdatasets'
@@ -63,6 +71,5 @@ for record in f:
         if links:
             for link in links:
                 write_to_local_file('({}, {})\n'.format(url, link))
-            break
 
 
