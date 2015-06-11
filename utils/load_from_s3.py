@@ -4,6 +4,13 @@ from collections import Counter
 from boto.s3.key import Key
 from gzipstream import GzipStreamFile
 
+### GLOBALS ###
+BUCKET_NAME = 'aws-publicdatasets'
+KEY = None
+PATH = None
+DIR = None
+COUNTER = 0
+
 def get_tag_count(data, ctr=None):
     if ctr is None:
         ctr = Counter()
@@ -32,7 +39,6 @@ def process_record(record):
                 return url, links
     return None, None
 
-COUNTER = 0
 def write_to_local_file(data):
     global COUNTER
     ext = '-{}'.format(str(COUNTER).zfill(5))
@@ -45,6 +51,7 @@ def write_to_local_file(data):
         print "Loading next file!"
         COUNTER += 1
         tempfile.close()
+        copy_to_HDFS(filename)
         write_to_local_file(data)
         return
     else:
@@ -52,24 +59,31 @@ def write_to_local_file(data):
 
     tempfile.close()
 
-BUCKET_NAME = 'aws-publicdatasets'
-KEY = None
-with open('warc.path', 'r') as f:
-    KEY = f.read().strip()
-
-PATH = os.path.split(KEY)
-DIR = PATH[0]
+def copy_to_HDFS(filename):
+    print 'Copying {} to HDFS!'.format(filename)
+    hdfs_filename = os.path.join(DIR, filename)
+    os.system('hdfs dfs -mkdir -p {}'.format(DIR))
+    os.system('hdfs dfs -copyFromLocal {} {}'.format(filename, hdfs_filename))
+    os.system('rm {}'.format(filename))
 
 conn = boto.connect_s3(anon=True)
 bucket = conn.get_bucket(BUCKET_NAME)
-k = Key(bucket, KEY)
-f = warc.WARCFile(fileobj=GzipStreamFile(k))
+with open('warc-10.paths', 'r') as f:
+    global BUCKET_NAME, KEY, PATH, DIR
+    for line in f:
+        KEY = line.strip()
 
-for record in f:
-    if record['Content-Type'] == 'application/http; msgtype=response':
-        url, links = process_record(record)
-        if links:
-            for link in links:
-                write_to_local_file('({}, {})\n'.format(url, link))
+    PATH = os.path.split(KEY)
+    DIR = PATH[0]
+
+    k = Key(bucket, KEY)
+    f = warc.WARCFile(fileobj=GzipStreamFile(k))
+
+    for record in f:
+        if record['Content-Type'] == 'application/http; msgtype=response':
+            url, links = process_record(record)
+            if links:
+                for link in links:
+                    write_to_local_file('({}, {})\n'.format(url, link))
 
 
