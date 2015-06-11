@@ -15,8 +15,7 @@ assert get_tag_count('<html><a href="..."></a><h1 /><br/><p><p></p></p>') == {'h
 
 def get_links(data):
     links = re.findall(r'href=[\'"]?([^\'" >]+)', data)
-    return set(map(lambda link: urlparse(link).netloc, links))
-    #return ', '.join(links)
+    return [l for l in set(map(lambda link: urlparse(link).netloc, links)) if l]
 
 def process_record(record):
     if record['Content-Type'] == 'application/http; msgtype=response':
@@ -25,8 +24,8 @@ def process_record(record):
         if 'Content-Type: text/html' in headers:
             url = urlparse(record['WARC-Target-URI']).netloc
             links = get_links(body)
-            return links
-    return None
+            return url, links
+    return None, None
 
 BUCKET_NAME = 'aws-publicdatasets'
 KEY = None
@@ -40,9 +39,10 @@ f = warc.WARCFile(fileobj=GzipStreamFile(k))
 
 for record in f:
     if record['Content-Type'] == 'application/http; msgtype=response':
-        links = process_record(record)
-        print links
+        url, links = process_record(record)
         if links:
+            for link in links:
+                print url, link
             break
     #with open('temp.txt', 'a') as tempfile:
 
