@@ -13,11 +13,18 @@ object edge_list {
 
         // function to hash "(src_url, dst_url)" to integers
         def hash_record(record: String): String = {
+            val error = "error".hashCode.toString
             val r = record.split(", ")
-            val src_url = r(0).replace("(", "")
-            val dst_url = r(1).replace(")", "")
-            src_url.hashCode.toString + " " + dst_url.hashCode.toString
+            // Catch ArrayIndexOutOfBoundsException
+            try {
+                val src_url = r(0).replace("(", "")
+                val dst_url = r(1).replace(")", "")
+                src_url.hashCode.toString + " " + dst_url.hashCode.toString
+            } catch {
+                case NonFatal(exc) => error + " " + error
+            }
         }
+
 
         // read in the data from HDFS
         val rdd = sc.textFile(file_name)
