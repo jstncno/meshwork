@@ -48,7 +48,7 @@ object edge_list {
         val edgeList = rdd.map(record => hashRecord(record))
 
         // save the data back into HDFS
-        val edgeListFileName = "hdfs://ip-172-31-10-101:9000/data/edge-lists/edge-list-file-0000"
+        val edgeListFileName = "hdfs://ip-172-31-10-101:9000/data/edge-lists"
         edgeList.saveAsTextFile(edgeListFileName)
 
         // map each VertexName to its VertexId
