@@ -1,19 +1,13 @@
-import re, boto, gzip, warc, os, time, sys
+import re, boto, gzip, warc, os, time
 from urlparse import urlparse
 from collections import Counter
 from boto.s3.key import Key
 from gzipstream import GzipStreamFile
 
-try:
-    nohup = open(sys.argv[1], 'a+')
-    sys.stdout = nohup
-    print sys.argv[1]
-except:
-    pass
-
 ### GLOBALS ###
 BUCKET_NAME = 'aws-publicdatasets'
 KEY = None
+PATH = None
 DIR = '/data/common-crawl/crawl-data'
 COUNTER = 0
 
@@ -54,7 +48,8 @@ def write_to_local_file(data):
     statinfo = os.stat(filename)
     tempfile_size = statinfo.st_size/float(1024*1024) # size in MB
     if tempfile_size >= 128:
-        print 'Loading next file!'
+        with open('nohup.out', 'a+') as nohup:
+            nohup.write('Loading next file!\n')
         COUNTER += 1
         tempfile.close()
         copy_to_HDFS(filename)
@@ -66,23 +61,28 @@ def write_to_local_file(data):
     tempfile.close()
 
 def copy_to_HDFS(filename):
-    print 'Copying {} to HDFS!'.format(filename)
     hdfs_filename = os.path.join(DIR, filename)
+    with open('nohup.out', 'a+') as nohup:
+        nohup.write('Copying {} to HDFS!\nSaving as {}...'.format(filename, hdfs_filename))
     os.system('hdfs dfs -mkdir -p {}'.format(DIR))
     os.system('hdfs dfs -copyFromLocal {} {}'.format(filename, hdfs_filename))
     os.system('rm {}'.format(filename))
 
-print 'Starting transfer...'
+with open('nohup.out', 'a+') as nohup:
+    nohup.write('Starting transfer...\n')
 start = time.time()
 
 conn = boto.connect_s3(anon=True)
 bucket = conn.get_bucket(BUCKET_NAME)
 with open('warc-100.paths', 'r') as f:
-    global BUCKET_NAME, KEY, DIR
+    global BUCKET_NAME, KEY, PATH
     for line in f:
         KEY = line.strip()
 
-        print 'Transferring {}...'.format(KEY)
+        PATH = os.path.split(KEY)
+
+        with open('nohup.out', 'a+') as nohup:
+            nohup.write('Transferring {}...\n'.format(KEY))
         file_start = time.time()
 
         k = Key(bucket, KEY)
@@ -95,15 +95,17 @@ with open('warc-100.paths', 'r') as f:
                     for link in links:
                         write_to_local_file('({}, {})\n'.format(url, link))
         file_end = time.time()
-        print 'File transfer complete!'
-        print 'Time elapsed: {}'.format(file_end-file_start)
+        with open('nohup.out', 'a+') as nohup:
+            nohup.write('File transfer complete!\n')
+        with open('nohup.out', 'a+') as nohup:
+            nohup.write('Time elapsed: {}\n'.format(file_end-file_start))
 
 ext = '-{}'.format(str(COUNTER).zfill(5))
 filename = 'warc-edges{}'.format(ext)
 copy_to_HDFS(filename)
 
 end = time.time()
-print 'Transfer complete!'
-print 'Time elapsed: {}'.format(end-start)
+with open('nohup.out', 'a+') as nohup: 
+    nohup.write('Transfer complete!\n')
+    nohup.write('Time elapsed: {}\n'.format(end-start))
 
-nohup.close()
