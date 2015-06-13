@@ -5,7 +5,7 @@ from boto.s3.key import Key
 from gzipstream import GzipStreamFile
 
 try:
-    sys.stdout = sys.argv[1]
+    sys.stdout = open(sys.argv[1], 'w+')
 except:
     pass
 
