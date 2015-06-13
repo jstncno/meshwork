@@ -1,14 +1,18 @@
-import re, boto, gzip, warc, os, time
+import re, boto, gzip, warc, os, time, sys
 from urlparse import urlparse
 from collections import Counter
 from boto.s3.key import Key
 from gzipstream import GzipStreamFile
 
+try:
+    sys.stdout = sys.argv[1]
+except:
+    pass
+
 ### GLOBALS ###
 BUCKET_NAME = 'aws-publicdatasets'
 KEY = None
-PATH = None
-DIR = None
+DIR = '/data/common-crawl/crawl-data'
 COUNTER = 0
 
 def get_tag_count(data, ctr=None):
@@ -72,12 +76,9 @@ start = time.time()
 conn = boto.connect_s3(anon=True)
 bucket = conn.get_bucket(BUCKET_NAME)
 with open('warc-100.paths', 'r') as f:
-    global BUCKET_NAME, KEY, PATH, DIR
+    global BUCKET_NAME, KEY, DIR
     for line in f:
         KEY = line.strip()
-
-        PATH = os.path.split(KEY)
-        DIR = PATH[0]
 
         print 'Transferring {}...'.format(KEY)
         file_start = time.time()
