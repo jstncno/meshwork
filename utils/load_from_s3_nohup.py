@@ -10,6 +10,7 @@ KEY = None
 PATH = None
 DIR = '/data/common-crawl/crawl-data'
 COUNTER = 0
+BLOCK_SIZE = 120
 
 def get_tag_count(data, ctr=None):
     if ctr is None:
@@ -47,7 +48,7 @@ def write_to_local_file(data):
 
     statinfo = os.stat(filename)
     tempfile_size = statinfo.st_size/float(1024*1024) # size in MB
-    if tempfile_size >= 128:
+    if tempfile_size >= BLOCK_SIZE:
         with open('nohup.out', 'a+') as nohup:
             nohup.write('Loading next file!\n')
         COUNTER += 1

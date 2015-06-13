@@ -4,18 +4,12 @@ from collections import Counter
 from boto.s3.key import Key
 from gzipstream import GzipStreamFile
 
-try:
-    nohup = open(sys.argv[1], 'a+')
-    sys.stdout = nohup
-    print sys.argv[1]
-except:
-    pass
-
 ### GLOBALS ###
 BUCKET_NAME = 'aws-publicdatasets'
 KEY = None
 DIR = '/data/common-crawl/crawl-data'
 COUNTER = 0
+BLOCK_SIZE = 120
 
 def get_tag_count(data, ctr=None):
     if ctr is None:
@@ -53,7 +47,7 @@ def write_to_local_file(data):
 
     statinfo = os.stat(filename)
     tempfile_size = statinfo.st_size/float(1024*1024) # size in MB
-    if tempfile_size >= 128:
+    if tempfile_size >= BLOCK_SIZE:
         print 'Loading next file!'
         COUNTER += 1
         tempfile.close()
@@ -106,4 +100,3 @@ end = time.time()
 print 'Transfer complete!'
 print 'Time elapsed: {}'.format(end-start)
 
-nohup.close()
