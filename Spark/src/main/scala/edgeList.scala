@@ -12,7 +12,7 @@ object edgeList {
         val conf = new SparkConf().setAppName("CreateEdgeListFile")
         val sc = new SparkContext(conf)
 
-        val file_name = "hdfs://ip-172-31-10-101:9000/common-crawl/crawl-data/CC-MAIN-2015-18/segments/1429246633512.41/warc/warc-edges-00000"
+        val warcFileEdges = "hdfs://ip-172-31-10-101:9000/common-crawl/crawl-data/CC-MAIN-2015-18/segments/1429246633512.41/warc/warc-edges-00000"
 
         // function to hash "(src_url, dst_url)" to long integers
         def hashRecord(record: String): String = {
@@ -28,21 +28,8 @@ object edgeList {
             }
         }
 
-        // function to map src_url to its hash integer
-        def mapVertexHash(record: String): (Long, String) = {
-            val error = "error".hashCode.toLong
-            val r = record.split(", ")
-            // Catch ArrayIndexOutOfBoundsException
-            try {
-                val src_url = r(0).replace("(", "")
-                (src_url.hashCode.toLong, src_url)
-            } catch {
-                case NonFatal(exc) => (error, "error")
-            }
-        }
-
         // read in the data from HDFS
-        val rdd = sc.textFile(file_name)
+        val rdd = sc.textFile(warcFileEdges)
 
         // map each record into a tuple consisting of the hash codes of (src_url, dst_url)
         val edgeList = rdd.map(hashRecord)
@@ -51,19 +38,7 @@ object edgeList {
         val edgeListFileName = "hdfs://ip-172-31-10-101:9000/data/edge-lists"
         edgeList.saveAsTextFile(edgeListFileName)
 
-        // map each VertexName to its VertexId
-        val vertices = rdd.map(mapVertexHash).reduceByKey((a, b) => a)
-        val verticesFileName = "hdfs://ip-172-31-10-101:9000/data/vertices/vertices-file-0000"
-
-        // Setup GraphX graph
-        val graph = GraphLoader.edgeListFile(sc, edgeListFileName)
-        // Run PageRank
-        val ranks = graph.pageRank(0.0001).vertices
-
-        // Map VertexIds to URL
-        val ranksByVertexId = vertices.join(ranks).map { case (id, (vid, rank)) => (vid, rank) }
-
-        Console.print(ranksByVertexId.take(10).mkString("\n"))
+        Console.print("Edge List file saved to /data/edge-lists\n")
 
     }
 }
