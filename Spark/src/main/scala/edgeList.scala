@@ -5,7 +5,7 @@ import org.apache.spark.graphx._
 import org.apache.spark.rdd.RDD
 import scala.util.control.NonFatal
 
-object edge_list {
+object edgeList {
     def main(args: Array[String]) {
 
         // setup the Spark Context
@@ -45,14 +45,14 @@ object edge_list {
         val rdd = sc.textFile(file_name)
 
         // map each record into a tuple consisting of the hash codes of (src_url, dst_url)
-        val edgeList = rdd.map(record => hashRecord(record))
+        val edgeList = rdd.map(hashRecord)
 
         // save the data back into HDFS
         val edgeListFileName = "hdfs://ip-172-31-10-101:9000/data/edge-lists"
         edgeList.saveAsTextFile(edgeListFileName)
 
         // map each VertexName to its VertexId
-        val vertices = rdd.map(record => mapVertexHash(record)).reduceByKey((a, b) => a)
+        val vertices = rdd.map(mapVertexHash).reduceByKey((a, b) => a)
         val verticesFileName = "hdfs://ip-172-31-10-101:9000/data/vertices/vertices-file-0000"
 
         // Setup GraphX graph
