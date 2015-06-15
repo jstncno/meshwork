@@ -20,7 +20,8 @@ object pageRank {
             val error = "error".hashCode.toLong
             val r = record.split(", ")
             // Catch ArrayIndexOutOfBoundsException
-            try {                val src_url = r(0).replace("(", "")
+            try {
+                val src_url = r(0).replace("(", "")
                 (src_url.hashCode.toLong, src_url)
             } catch {
                 case NonFatal(exc) => (error, "error")
@@ -32,7 +33,6 @@ object pageRank {
 
         // map each VertexName to its VertexId
         val vertices = rdd.map(mapVertexHash).reduceByKey((a, b) => a)
-        val verticesFileName = "hdfs://ip-172-31-10-101:9000/data/vertices/vertices-file-0000"
 
         // Setup GraphX graph
         val graph = GraphLoader.edgeListFile(sc, edgeListFiles)
@@ -40,7 +40,9 @@ object pageRank {
         val ranks = graph.pageRank(0.0001).vertices
 
         // Map VertexIds to URL
-        val ranksByVertexId = vertices.join(ranks).map { case (id, (vid, rank)) => (vid, rank) }
+        val ranksByVertexId = vertices.join(ranks).map {
+            case (id, (vid, rank)) => (vid, rank)
+        }
 
         Console.print(ranksByVertexId.take(10).mkString("\n") + "\n")
     }
