@@ -1,0 +1,12 @@
+val vertices_string = vertices.map{ line =>
+     | (line._1.toLong, line._2)
+     | }
+
+
+val ranksByVertexId = vertices_string.join(ranks).map {
+     | case (id, (vid, rank)) => (vid, rank)
+     | }
+
+// aggregate messages
+def sendDstId(ec:EdgeContext[Int, Int, Array[Long]]):Unit = { ec.sendToDst(Array(ec.dstId)) }
+val neighbors = graph.aggregateMessages[Array[Long]](sendDstId, _ ++ _)
