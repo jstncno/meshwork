@@ -10,3 +10,21 @@ val ranksByVertexId = vertices_string.join(ranks).map {
 // aggregate messages
 def sendDstId(ec:EdgeContext[Int, Int, Array[Long]]):Unit = { ec.sendToDst(Array(ec.dstId)) }
 val neighbors = graph.aggregateMessages[Array[Long]](sendDstId, _ ++ _)
+
+// md5 hashing
+import java.security.MessageDigest
+import java.nio.ByteBuffer
+
+def md5(s: String) = {
+    MessageDigest.getInstance("MD5").digest(s.getBytes)
+}
+
+ByteBuffer.wrap(md5("Hello")).getLong
+// res4: Long = -8423251567987060074
+
+
+// mesh.sbt
+// warc-hadoop class
+// https://github.com/ept/warc-hadoop
+libraryDependencies += "com.martinkl.warc" % "warc-hadoop" % "0.1.0"
+
