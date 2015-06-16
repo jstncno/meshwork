@@ -1,0 +1,3 @@
+#/var/lib/zookeeper/myid
+# ID of server node, i.e. server.1 = 1, server.2 = 2, etc.
+1

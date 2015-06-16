@@ -1,0 +1,5 @@
+# /usr/local/hbase/conf/regionservers
+# Private IPs of nodes in cluster that IS NOT master
+<DATANODE_PRIVATE_IP>
+<DATANODE_PRIVATE_IP>
+<DATANODE_PRIVATE_IP>
