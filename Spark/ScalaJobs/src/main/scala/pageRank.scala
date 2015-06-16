@@ -5,12 +5,16 @@ import org.apache.spark.graphx._
 import org.apache.spark.rdd.RDD
 import scala.util.control.NonFatal
 
+import org.apache.hadoop.hbase.client.HBaseAdmin
+import org.apache.hadoop.hbase.{HBaseConfiguration, HTableDescriptor, TableName}
+import org.apache.hadoop.hbase.mapreduce.TableInputFormat
+
 object pageRank {
     def main(args: Array[String]) {
 
         // setup the Spark Context
-        val conf = new SparkConf().setAppName("CreateEdgeListFile")
-        val sc = new SparkContext(conf)
+        val sparkConf = new SparkConf().setAppName("CreateEdgeListFile")
+        val sc = new SparkContext(sparkConf)
 
         val warcFileEdges = "hdfs://ip-172-31-10-101:9000/common-crawl/crawl-data/CC-MAIN-2015-18/segments/1429246633512.41/warc/warc-edges-00000"
         val edgeListFiles = "hdfs://ip-172-31-10-101:9000/data/edge-lists"
@@ -45,5 +49,15 @@ object pageRank {
         }
 
         Console.print(ranksByVertexId.take(10).mkString("\n") + "\n")
+
+
+        // Store ranks to HBase
+        val tableName = "websites"
+        val hbaseConf = HBaseConfiguration.create()
+        val admin = new HBaseAdmin(conf)
+        if (!admin.isTableAvailable(tableName)) {
+            val tableDesc = new HTableDescriptor(TableName.valueOf(tableName))
+            admin.createTable(tableDesc)
+        }
     }
 }

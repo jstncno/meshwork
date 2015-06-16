@@ -28,3 +28,31 @@ ByteBuffer.wrap(md5("Hello")).getLong
 // https://github.com/ept/warc-hadoop
 libraryDependencies += "com.martinkl.warc" % "warc-hadoop" % "0.1.0"
 
+// JSON representation of desired HBase schema
+{
+    "md5(website_url)": // Row Key
+    {
+        "Data": // Column Family
+        {
+            "PageRank": // Column Qualifier
+            {
+                "Timestamp1" : "0.28" // Timestamp/Version number : Cell Value
+            }
+        },
+        "Neighbors": // Column Family
+        {
+            "FirstDegree": // Column Qualifier
+            {
+                "Timestamp1": Array[Long] // Timestamp/Version number : Cell Value
+            },
+            "SecondDegree":
+            {
+                "Timestamp1": Array[Long]
+            },
+            "ThirdDegree":
+            {
+                "Timestamp1": Array[Long]
+            }
+        }
+    }
+}
