@@ -110,3 +110,11 @@ libraryDependencies += "com.martinkl.warc" % "warc-hadoop" % "0.1.0"
         }
     }
 }
+
+// create HBase Table
+// create 'TableName', 'ColumnFamily1', 'ColumnFamily2', ...
+hbase(main):001:0> create 'websites', 'Data', 'Neighbors'
+
+// drop HBase TAble
+hbase(main):002:0> disable 'websites'
+hbase(main):003:0> drop 'websites'
