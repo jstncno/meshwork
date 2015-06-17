@@ -5,9 +5,11 @@ import org.apache.spark.graphx._
 import org.apache.spark.rdd.RDD
 import scala.util.control.NonFatal
 
+import java.security.MessageDigest
+import java.nio.ByteBuffer
+
 import org.apache.hadoop.hbase.client.HBaseAdmin
 import org.apache.hadoop.hbase.{HBaseConfiguration, HTableDescriptor, TableName}
-import org.apache.hadoop.hbase.mapreduce.TableInputFormat
 
 object pageRank {
     def main(args: Array[String]) {
@@ -54,10 +56,30 @@ object pageRank {
         // Store ranks to HBase
         val tableName = "websites"
         val hbaseConf = HBaseConfiguration.create()
-        val admin = new HBaseAdmin(conf)
-        if (!admin.isTableAvailable(tableName)) {
-            val tableDesc = new HTableDescriptor(TableName.valueOf(tableName))
-            admin.createTable(tableDesc)
+        val admin = new HBaseAdmin(hbaseConf)
+        //if (!admin.isTableAvailable(tableName)) {
+            //val tableDesc = new HTableDescriptor(TableName.valueOf(tableName))
+            //admin.createTable(tableDesc)
+        //}
+        val table = new HTable(hbaseConf, tableName)
+
+        def md5(s: String) = {
+            MessageDigest.getInstance("MD5").digest(s.getBytes)
         }
+
+        def putInHBase(vertex: (String, Double)): Unit = {
+            // Row key is md5 hash of URL
+            val vertexId = ByteBuffer.wrap(md5(vertex._1)).getLong
+            val putter = new Put(Bytes.toBytes(vertexId))
+            val dataFamilyName = Bytes.toBytes("Data")
+            val urlQualifierName = Bytes.toBytes("URL")
+            val urlValue = Bytes.toBytes(vertex._1)
+            putter.addColumn(dataFamilyName, urlQualifierName, urlValue)
+            val pageRankQualifierName = Bytes.toBytes("PageRank")
+            val pageRankValue = Bytes.toBytes(vertex._2)
+            putter.addColumn(dataFamilyName, pageRankQualifierName, pageRankValue)
+        }
+
+        ranksByVertexId.map(putInHBase).count()
     }
 }

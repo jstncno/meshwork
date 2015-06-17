@@ -22,6 +22,56 @@ def md5(s: String) = {
 ByteBuffer.wrap(md5("Hello")).getLong
 // res4: Long = -8423251567987060074
 
+// Scala HBase API example
+// http://wiki.apache.org/hadoop/Hbase/Scala
+import org.apache.hadoop.hbase.HBaseConfiguration
+import org.apache.hadoop.hbase.client.{HBaseAdmin,HTable,Put,Get}
+import org.apache.hadoop.hbase.util.Bytes
+
+
+val conf = new HBaseConfiguration()
+val admin = new HBaseAdmin(conf)
+
+// list the tables
+val listtables=admin.listTables() 
+listtables.foreach(println)
+
+// let's insert some data in 'mytable' and get the row
+
+val table = new HTable(conf, "mytable")
+
+val theput= new Put(Bytes.toBytes("rowkey1"))
+
+theput.add(Bytes.toBytes("ids"),Bytes.toBytes("id1"),Bytes.toBytes("one"))
+table.put(theput)
+
+val theget= new Get(Bytes.toBytes("rowkey1"))
+val result=table.get(theget)
+val value=result.value()
+println(Bytes.toString(value))
+println(Bytes.toString(Bytes.toBytes("ids"), Bytes.toBytes("URL")))
+***********************************
+//import org.apache.hadoop.hbase.client.HBaseAdmin
+import org.apache.hadoop.hbase.client.Admin
+import org.apache.hadoop.hbase.client.Table
+import org.apache.hadoop.hbase.client.ConnectionFactory
+import org.apache.hadoop.hbase.{HBaseConfiguration, HTableDescriptor, TableName}
+import org.apache.hadoop.hbase.client.Put
+
+val connection = ConnectionFactory.createConnection()
+val admin = connection.getAdmin()
+admin.tableExists(TableName.valueOf("websites"))
+// res8: Boolean = true
+val table = connection.getTable(TableName.valueOf("websites"))
+// look up table.batch()
+// https://hbase.apache.org/apidocs/org/apache/hadoop/hbase/client/Table.html
+
+val getter = new Get("www.google.com".getBytes)
+
+val writer = new Put(md5("www.google.com"))
+// writer: org.apache.hadoop.hbase.client.Put = {"totalColumns":0,"families":{},"row":"\\x0A\\x13{7\\x5C\\xC3\\x88\\x1Ap\\xE1\\x86\\xCE!r\\xC8\\xD1"}
+
+table.close()
 
 // mesh.sbt
 // warc-hadoop class
@@ -34,6 +84,10 @@ libraryDependencies += "com.martinkl.warc" % "warc-hadoop" % "0.1.0"
     {
         "Data": // Column Family
         {
+            "URL": // Column Qualifier
+            {
+                "Timestamp1" : "www.google.com"
+            },
             "PageRank": // Column Qualifier
             {
                 "Timestamp1" : "0.28" // Timestamp/Version number : Cell Value
