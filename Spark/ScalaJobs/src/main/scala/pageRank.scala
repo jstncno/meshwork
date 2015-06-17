@@ -78,6 +78,7 @@ object pageRank {
             val pageRankQualifierName = Bytes.toBytes("PageRank")
             val pageRankValue = Bytes.toBytes(vertex._2)
             putter.addColumn(dataFamilyName, pageRankQualifierName, pageRankValue)
+            table.put(putter)
         }
 
         ranksByVertexId.map(putInHBase).count()
