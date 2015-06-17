@@ -5,6 +5,8 @@ import org.apache.spark.graphx._
 import org.apache.spark.rdd.RDD
 import scala.util.control.NonFatal
 
+import org.apache.spark.serializer.KryoSerializer
+
 import java.security.MessageDigest
 import java.nio.ByteBuffer
 import org.apache.hadoop.hbase.util.Bytes
@@ -17,6 +19,8 @@ object pageRank {
 
         // setup the Spark Context
         val sparkConf = new SparkConf().setAppName("CreateEdgeListFile")
+        sparkConf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+        sparkConf.registerKryoClasses(Array(classOf[HBaseConfiguration], classOf[HTable], classOf[ByteBuffer], classOf[Put], classOf[Bytes]))
         val sc = new SparkContext(sparkConf)
 
         val warcFileEdges = "hdfs://ip-172-31-10-101:9000/common-crawl/crawl-data/CC-MAIN-2015-18/segments/1429246633512.41/warc/warc-edges-00000"
@@ -82,6 +86,6 @@ object pageRank {
             table.put(putter)
         }
 
-        ranksByVertexId.map(putInHBase).count()
+        //ranksByVertexId.map(putInHBase).count()
     }
 }

@@ -41,7 +41,7 @@ export SPARK_HOME=/usr/local/spark
 export PATH=$PATH:$SPARK_HOME/bin
 
 export HBASE_HOME=/usr/local/hbase
-export PATH=$PATH:$SPARK_HOME/bin
+export PATH=$PATH:$HBASE_HOME/bin
 
 alias spark-shell='$SPARK_HOME/bin/spark-shell --master spark://$($MASTER_NAME):7077' 
 
