@@ -12,3 +12,5 @@ libraryDependencies ++= Seq(
 )
 
 libraryDependencies += "org.apache.spark" %% "spark-graphx" % "1.2.0"
+libraryDependencies += "com.esotericsoftware" % "kryo" % "3.0.1"
+libraryDependencies += "com.martinkl.warc" % "warc-hadoop" % "0.1.0"
