@@ -18,7 +18,7 @@ object pageRank {
     def main(args: Array[String]) {
 
         // setup the Spark Context
-        val sparkConf = new SparkConf().setAppName("CreateEdgeListFile")
+        val sparkConf = new SparkConf().setAppName("RunPageRank")
         sparkConf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
         sparkConf.registerKryoClasses(Array(classOf[HBaseConfiguration], classOf[HTable], classOf[ByteBuffer], classOf[Put], classOf[Bytes]))
         val sc = new SparkContext(sparkConf)
