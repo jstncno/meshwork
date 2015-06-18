@@ -50,8 +50,8 @@ object pageRank {
 
         // map each VertexName to its VertexId
         // RDD[(Long, String)]
-        //val vertices = rdd.map(mapVertexHash).reduceByKey((a, b) => a) - Potentially VERY bad!
-        val vertices = rdd.map(mapVertexHash)
+        val vertices = rdd.map(mapVertexHash).reduceByKey((a, b) => a) // Removes duplicates
+        Console.print(vertices.take(10).mkString("\n") + "\n")
 
         // Setup GraphX graph
         val graph = GraphLoader.edgeListFile(sc, edgeListFiles)
@@ -59,22 +59,19 @@ object pageRank {
         val ranks = graph.pageRank(0.0001).vertices
 
         // Map VertexIds to URL
-        // RDD[(url:String, pageRank:Doubl)]
+        // RDD[(url:Long, pageRank:Double)]
         val ranksByVertexId = vertices.join(ranks).map {
             case (id, (vid, rank)) => (vid, rank)
         }
 
         Console.print(ranksByVertexId.take(10).mkString("\n") + "\n")
 
-
-
         // Store ranks to HBase
-        def putInHBase(vertex: (String, Double)): Unit = {
+        def putInHBase(vertex: (Long, Double)): Unit = {
             val hbaseConf = HBaseConfiguration.create()
             val tableName = "websites"
             val table = new HTable(hbaseConf, tableName)
-            // Row key is md5 hash of URL
-            val vertexId = md5(vertex._1)
+            val vertexId = vertex._1
             val putter = new Put(Bytes.toBytes(vertexId))
             val dataFamilyName = Bytes.toBytes("Data")
             val urlQualifierName = Bytes.toBytes("URL")
@@ -86,6 +83,6 @@ object pageRank {
             table.put(putter)
         }
 
-        ranksByVertexId.map(putInHBase).count()
+        //ranksByVertexId.map(putInHBase).count()
     }
 }
