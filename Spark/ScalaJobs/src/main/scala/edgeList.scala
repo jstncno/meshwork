@@ -12,7 +12,8 @@ object edgeList {
         val conf = new SparkConf().setAppName("CreateEdgeListFile")
         val sc = new SparkContext(conf)
 
-        val warcFileEdges = "hdfs://ip-172-31-10-101:9000/common-crawl/crawl-data/CC-MAIN-2015-18/segments/1429246633512.41/warc/warc-edges-00000"
+        //val warcFileEdges = "hdfs://ip-172-31-10-101:9000/common-crawl/crawl-data/CC-MAIN-2015-18/segments/1429246633512.41/warc/warc-edges-00000"
+        val warcFileEdges = "hdfs:/ip-172-31-10-101:9000/data/link-edges"
 
         // function to hash "(src_url, dst_url)" to long integers
         def hashRecord(record: String): String = {
