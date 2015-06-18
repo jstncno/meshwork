@@ -1,3 +1,5 @@
+// For Python Spark jobs, make sure Python dependencies are installed on every node!
+
 val vertices_string = vertices.map{ line =>
      | (line._1.toLong, line._2)
      | }
