@@ -63,7 +63,7 @@ export PROMPT_COMMAND=changePrompt
 #$HADOOP_HOME/sbin/mr-jobhistory-daemon.sh start historyserver
 
 # Check to see if all the processes are running on the namenode by running
-#jps
+jps
 
 # Spark
 #$SPARK_HOME/sbin/start-all.sh
@@ -73,3 +73,5 @@ export PROMPT_COMMAND=changePrompt
 
 # HBase
 #$HBASE_HOME/bin/start-hbase.sh
+# HBase REST API (Stargate)
+#$HBASE_HOME/bin/hbase-daemon.sh start rest -p 10001
