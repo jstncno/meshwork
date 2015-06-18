@@ -23,27 +23,35 @@ object pageRank {
         sparkConf.registerKryoClasses(Array(classOf[HBaseConfiguration], classOf[HTable], classOf[ByteBuffer], classOf[Put], classOf[Bytes]))
         val sc = new SparkContext(sparkConf)
 
-        val warcFileEdges = "hdfs://ip-172-31-10-101:9000/common-crawl/crawl-data/CC-MAIN-2015-18/segments/1429246633512.41/warc/warc-edges-00000"
+        val warcFileEdges = "hdfs://ip-172-31-10-101:9000/data/link-edges"
         val edgeListFiles = "hdfs://ip-172-31-10-101:9000/data/edge-lists"
+
+        def md5(s: String): Long = {
+            val message = MessageDigest.getInstance("MD5").digest(s.getBytes)
+            ByteBuffer.wrap(message).getLong
+        }
 
         // function to map src_url to its hash integer
         def mapVertexHash(record: String): (Long, String) = {
-            val error = "error".hashCode.toLong
-            val r = record.split(", ")
+            val error = md5("error")
+            val r = record.split(" ")
             // Catch ArrayIndexOutOfBoundsException
             try {
-                val src_url = r(0).replace("(", "")
-                (src_url.hashCode.toLong, src_url)
+                val src_url = r(0)
+                (md5(src_url), src_url)
             } catch {
                 case NonFatal(exc) => (error, "error")
             }
         }
 
         // read in the data from HDFS
+        // RDD[record:String]
         val rdd = sc.textFile(warcFileEdges)
 
         // map each VertexName to its VertexId
-        val vertices = rdd.map(mapVertexHash).reduceByKey((a, b) => a)
+        // RDD[(Long, String)]
+        //val vertices = rdd.map(mapVertexHash).reduceByKey((a, b) => a) - Potentially VERY bad!
+        val vertices = rdd.map(mapVertexHash)
 
         // Setup GraphX graph
         val graph = GraphLoader.edgeListFile(sc, edgeListFiles)
@@ -51,6 +59,7 @@ object pageRank {
         val ranks = graph.pageRank(0.0001).vertices
 
         // Map VertexIds to URL
+        // RDD[(url:String, pageRank:Doubl)]
         val ranksByVertexId = vertices.join(ranks).map {
             case (id, (vid, rank)) => (vid, rank)
         }
@@ -58,23 +67,14 @@ object pageRank {
         Console.print(ranksByVertexId.take(10).mkString("\n") + "\n")
 
 
+
         // Store ranks to HBase
-        //val admin = new HBaseAdmin(hbaseConf)
-        //if (!admin.isTableAvailable(tableName)) {
-            //val tableDesc = new HTableDescriptor(TableName.valueOf(tableName))
-            //admin.createTable(tableDesc)
-        //}
-
-        def md5(s: String) = {
-            MessageDigest.getInstance("MD5").digest(s.getBytes)
-        }
-
         def putInHBase(vertex: (String, Double)): Unit = {
             val hbaseConf = HBaseConfiguration.create()
             val tableName = "websites"
             val table = new HTable(hbaseConf, tableName)
             // Row key is md5 hash of URL
-            val vertexId = ByteBuffer.wrap(md5(vertex._1)).getLong
+            val vertexId = md5(vertex._1)
             val putter = new Put(Bytes.toBytes(vertexId))
             val dataFamilyName = Bytes.toBytes("Data")
             val urlQualifierName = Bytes.toBytes("URL")
