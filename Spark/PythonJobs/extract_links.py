@@ -42,10 +42,10 @@ def extract_links(path):
 def main():
     conf = SparkConf().setAppName('ExtractCCLinks')
     sc = SparkContext(conf=conf)
-    warc_paths = sc.textFile('hdfs:///data/warc-paths/warc-10.paths')
+    warc_paths = sc.textFile('hdfs:///data/warc-paths/warc-1.paths')
     link_edges = warc_paths.map(extract_links)
     print link_edges.count()
-    #print link_edges.take(10)
+    print link_edges.take(10)
 
 if __name__ == '__main__':
     main()
