@@ -16,17 +16,23 @@ var fetchDB = function(req, res, next) {
         if (error) {
             return next(new Error("Invalid key! " + error));
         }
-        req.data = value[0]['$'].toString();
+        data = {}
+        req.numItems = value.length.toString();
+        data['vertexId'] = value[2]['$'].toString();
+        req.vertexId = value[2]['$'].toString();
+        data['pageRank'] = value[0]['$'].toString();
+        req.pageRank = value[0]['$'].toString();
+        data['url'] = value[1]['$'].toString();
+        req.url = value[1]['$'].toString();
         console.log(value[0].column.toString());
         console.log(value[0]['$'].toString());
-        //console.log(value[0]['$'].readUInt32BE(0));
-        //console.log(value[0]['$'].readUInt32LE(0));
-        console.log('\n');
+        req.data = data;
         next();
     });
 }
 
 app.get('/:key', fetchDB, function(req, res) {
+    var data = req.url+'\n'+req.vertexId+'\n'+req.pageRank+'\n';
     res.send(req.data);
     //res.send(req.params.key);
     /*
