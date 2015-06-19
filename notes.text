@@ -82,17 +82,21 @@ libraryDependencies += "com.martinkl.warc" % "warc-hadoop" % "0.1.0"
 
 // JSON representation of desired HBase schema
 {
-    "md5(website_url)": // Row Key
+    "google.com": // Row Key
     {
         "Data": // Column Family
         {
             "URL": // Column Qualifier
             {
-                "Timestamp1" : "www.google.com"
+                "Timestamp1" : "google.com"
             },
             "PageRank": // Column Qualifier
             {
                 "Timestamp1" : "0.28" // Timestamp/Version number : Cell Value
+            },
+            "VertexId":
+            {
+                "Timestamp1" : "md5(google.com)"
             }
         },
         "Neighbors": // Column Family
@@ -120,3 +124,35 @@ hbase(main):001:0> create 'websites', 'Data', 'Neighbors'
 // drop HBase TAble
 hbase(main):002:0> disable 'websites'
 hbase(main):003:0> drop 'websites'
+
+// Handle Async calls in node
+// http://stackoverflow.com/questions/10695629/node-js-express-next
+function loadUser(req, res, next) {
+  if (req.params.userId) {
+    Users.findOne({ id: req.params.userId }, function(err, user) {
+      if (err) {
+        return next(new Error("Couldn't find user: " + err));
+      }
+
+      req.user = user;
+      next();
+    });
+  } else {
+    next();
+  }
+}
+
+// ...
+
+app.get('/user/:userId', loadUser, function(req, res) {
+  // do something with req.user
+});
+
+app.get('/users/:userId?', loadUser, function(req, res) {
+  // if req.user was set, it's because userId was specified (and we found the user).
+});
+
+// Pretend there's a "loadItem()" which operates similarly, but with itemId.
+app.get('/item/:itemId/addTo/:userId', loadItem, loadUser, function(req, res) {
+  req.user.items.append(req.item.name);
+});
