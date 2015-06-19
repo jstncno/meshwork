@@ -6,6 +6,7 @@ import org.apache.spark.rdd.RDD
 import scala.util.control.NonFatal
 import java.security.MessageDigest
 import java.nio.ByteBuffer
+import scala.sys.process._
 
 object edgeList {
     def main(args: Array[String]) {
@@ -26,11 +27,11 @@ object edgeList {
         // function to hash "(src_url, dst_url)" to long integers
         def hashRecord(record: String): String = {
             val error = md5("error").toString
-            val r = record.split(" ")
+            val r = record.split(", ")
             // Catch ArrayIndexOutOfBoundsException
             try {
-                val src_url = r(0)
-                val dst_url = r(1)
+                val src_url = r(0).replace("(", "")
+                val dst_url = r(1).replace(")", "")
                 md5(src_url).toString + " " + md5(dst_url).toString
             } catch {
                 case NonFatal(exc) => error + " " + error
@@ -43,6 +44,8 @@ object edgeList {
         // map each record into a tuple consisting of the hash codes of (src_url, dst_url)
         val edgeList = rdd.map(hashRecord).distinct()
 
+        // delete existing directory
+        "hdfs dfs -rm -r -f /data/edge-lists" !
         // save the data back into HDFS
         val edgeListFileName = "hdfs://ip-172-31-10-101:9000/data/edge-lists"
         edgeList.saveAsTextFile(edgeListFileName)

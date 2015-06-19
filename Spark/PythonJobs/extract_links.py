@@ -43,7 +43,7 @@ def main():
     conf = SparkConf().setAppName('ExtractCCLinks')
     sc = SparkContext(conf=conf)
     warc_paths = sc.textFile('hdfs:///data/warc-paths/warc-100.paths')
-    link_edges = warc_paths.map(extract_links)
+    link_edges = warc_paths.map(extract_links).flatMap(lambda line: line)
     print link_edges.count()
     print link_edges.take(10)
     # Delete existing /data/link-edges directory...

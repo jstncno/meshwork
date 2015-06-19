@@ -34,10 +34,10 @@ object pageRank {
         // function to map src_url to its hash integer
         def mapVertexHash(record: String): (Long, String) = {
             val error = md5("error")
-            val r = record.split(" ")
+            val r = record.split(", ")
             // Catch ArrayIndexOutOfBoundsException
             try {
-                val src_url = r(0)
+                val src_url = r(0).replace("(", "")
                 (md5(src_url), src_url)
             } catch {
                 case NonFatal(exc) => (error, "error")
@@ -60,11 +60,11 @@ object pageRank {
 
         // Map VertexIds to URL
         // RDD[(url:Long, pageRank:Double)]
-        val ranksByVertexId = vertices.join(ranks).map {
+        val ranksByVertexUrl = vertices.join(ranks).map {
             case (id, (vid, rank)) => (vid, rank)
         }
 
-        Console.print(ranksByVertexId.take(10).mkString("\n") + "\n")
+        Console.print(ranksByVertexUrl.take(10).mkString("\n") + "\n")
 
         // Store ranks to HBase
         def putInHBase(vertex: (Long, Double)): Unit = {
@@ -83,6 +83,6 @@ object pageRank {
             table.put(putter)
         }
 
-        //ranksByVertexId.map(putInHBase).count()
+        ranksByVertexUrl.map(putInHBase).count()
     }
 }
