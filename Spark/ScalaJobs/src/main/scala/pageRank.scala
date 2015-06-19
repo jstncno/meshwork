@@ -84,6 +84,6 @@ object pageRank {
             table.put(putter)
         }
 
-        ranksByVertexUrl.map(putInHBase).count()
+        Console.print(ranksByVertexUrl.map(putInHBase).count())
     }
 }
