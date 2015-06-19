@@ -73,13 +73,13 @@ object pageRank {
             val table = new HTable(hbaseConf, tableName)
             // Row key is md5 hash of URL
             val vertexId = md5(vertex._1)
-            val putter = new Put(Bytes.toBytes(vertexId))
+            val putter = new Put(vertexId)
             val dataFamilyName = Bytes.toBytes("Data")
             val urlQualifierName = Bytes.toBytes("URL")
             val urlValue = Bytes.toBytes(vertex._1)
             putter.addColumn(dataFamilyName, urlQualifierName, urlValue)
             val pageRankQualifierName = Bytes.toBytes("PageRank")
-            val pageRankValue = Bytes.toBytes(vertex._2)
+            val pageRankValue = vertex._2
             putter.addColumn(dataFamilyName, pageRankQualifierName, pageRankValue)
             table.put(putter)
         }
