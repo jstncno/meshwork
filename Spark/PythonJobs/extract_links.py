@@ -48,7 +48,7 @@ def main():
     print link_edges.take(10)
     # Delete existing /data/link-edges directory...
     os.system('hdfs dfs -rm -r -f /data/link-edges')
-    link_edges.saveAsTextFile('hdfs:/ip-172-31-10-101:9000/data/link-edges')
+    link_edges.saveAsTextFile('hdfs://ip-172-31-10-101:9000/data/link-edges')
 
 if __name__ == '__main__':
     main()
