@@ -34,10 +34,10 @@ object pageRank {
         // function to map src_url to its hash integer
         def mapVertexHash(record: String): (Long, String) = {
             val error = md5("error")
-            val r = record.split(", ")
+            val r = record.split(" ")
             // Catch ArrayIndexOutOfBoundsException
             try {
-                val src_url = r(0).replace("(", "")
+                val src_url = r(0)
                 (md5(src_url), src_url)
             } catch {
                 case NonFatal(exc) => (error, "error")

@@ -27,11 +27,11 @@ object edgeList {
         // function to hash "(src_url, dst_url)" to long integers
         def hashRecord(record: String): String = {
             val error = md5("error").toString
-            val r = record.split(", ")
+            val r = record.split(" ")
             // Catch ArrayIndexOutOfBoundsException
             try {
-                val src_url = r(0).replace("(", "")
-                val dst_url = r(1).replace(")", "")
+                val src_url = r(0)
+                val dst_url = r(1)
                 md5(src_url).toString + " " + md5(dst_url).toString
             } catch {
                 case NonFatal(exc) => error + " " + error
