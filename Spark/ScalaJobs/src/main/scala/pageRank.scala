@@ -67,11 +67,11 @@ object pageRank {
         Console.print(ranksByVertexUrl.take(10).mkString("\n") + "\n")
 
         // Store ranks to HBase
-        def putInHBase(vertex: (Long, Double)): Unit = {
+        def putInHBase(vertex: (String, Double)): Unit = {
             val hbaseConf = HBaseConfiguration.create()
             val tableName = "websites"
             val table = new HTable(hbaseConf, tableName)
-            val vertexId = vertex._1
+            val vertexId = md5(vertex._1)
             val putter = new Put(Bytes.toBytes(vertexId))
             val dataFamilyName = Bytes.toBytes("Data")
             val urlQualifierName = Bytes.toBytes("URL")
