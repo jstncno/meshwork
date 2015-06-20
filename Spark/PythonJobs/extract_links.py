@@ -40,6 +40,7 @@ def extract_links(path):
     return link_edges
 
 def main():
+    link_edges_file_path = 'hdfs://{}:9000/data/link-edges'.format(os.environ['MASTER_NAME'])
     conf = SparkConf().setAppName('ExtractCCLinks')
     sc = SparkContext(conf=conf)
     warc_paths = sc.textFile('hdfs:///data/warc-paths/warc-100.paths')
@@ -48,7 +49,7 @@ def main():
     print link_edges.take(10)
     # Delete existing /data/link-edges directory...
     os.system('hdfs dfs -rm -r -f /data/link-edges')
-    link_edges.saveAsTextFile('hdfs://ip-172-31-10-101:9000/data/link-edges')
+    link_edges.saveAsTextFile(link_edges_file_path)
 
 if __name__ == '__main__':
     main()
