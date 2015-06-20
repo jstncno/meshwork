@@ -19,9 +19,9 @@ object edgeList {
         val warcFileEdges = "hdfs://ip-172-31-10-101:9000/data/link-edges"
 
         // md5 hash
-        def md5(s: String) = {
+        def md5(s: String): Int = {
             val message = MessageDigest.getInstance("MD5").digest(s.getBytes)
-            ByteBuffer.wrap(message).getLong
+            ByteBuffer.wrap(message).getInt
         }
 
         // function to hash "(src_url, dst_url)" to long integers

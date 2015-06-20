@@ -5,6 +5,9 @@ import org.apache.spark.graphx._
 import org.apache.spark.rdd.RDD
 import scala.util.control.NonFatal
 
+import java.security.MessageDigest
+import java.nio.ByteBuffer
+
 object firstDegreeNeighbors {
     def main(args: Array[String]) {
 
@@ -12,22 +15,28 @@ object firstDegreeNeighbors {
         val conf = new SparkConf().setAppName("FindFirstDegreeNeighbors")
         val sc = new SparkContext(conf)
 
-        val warcFileEdges = "hdfs://ip-172-31-10-101:9000/common-crawl/crawl-data/CC-MAIN-2015-18/segments/1429246633512.41/warc/warc-edges-00000"
+        //val warcFileEdges = "hdfs://ip-172-31-10-101:9000/common-crawl/crawl-data/CC-MAIN-2015-18/segments/1429246633512.41/warc/warc-edges-00000"
+        val warcFileEdges = "hdfs://ip-172-31-10-101:9000/data/link-edges"
         val edgeListFiles = "hdfs://ip-172-31-10-101:9000/data/edge-lists"
 
+        def md5(s: String): Int = {
+            val message = MessageDigest.getInstance("MD5").digest(s.getBytes)
+            ByteBuffer.wrap(message).getInt
+        }
+
         // sendMsg function to send to all edges in graph
-        def sendDstId(ec:EdgeContext[Int, Int, Array[Long]]): Unit = {
-            ec.sendToDst(Array(ec.dstId))
+        def sendDstIdToSrc(ec:EdgeContext[Int, Int, Array[Long]]): Unit = {
+            ec.sendToSrc(Array(ec.dstId))
         }
 
         // function to map src_url to its hash integer
         def mapVertexHash(record: String): (Long, String) = {
-            val error = "error".hashCode.toLong
-            val r = record.split(", ")
+            val error = md5("error").toLong
+            val r = record.split(" ")
             // Catch ArrayIndexOutOfBoundsException
             try {
-                val src_url = r(0).replace("(", "")
-                (src_url.hashCode.toLong, src_url)
+                val src_url = r(0)
+                (md5(src_url).toLong, src_url)
             } catch {
                 case NonFatal(exc) => (error, "error")
             }
@@ -44,7 +53,7 @@ object firstDegreeNeighbors {
 
         // Find first-degree neighbors of each vertex
         // Neighbers represented as Array[VertexId]
-        val neighbors = graph.aggregateMessages[Array[Long]](sendDstId, _ ++ _)
+        val neighbors = graph.aggregateMessages[Array[Long]](sendDstIdToSrc, _ ++ _)
 
         // Map VertexIds to URL
         val neighborsByVertexId = vertices.join(neighbors).map {

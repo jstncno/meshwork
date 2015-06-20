@@ -26,19 +26,19 @@ object pageRank {
         val warcFileEdges = "hdfs://ip-172-31-10-101:9000/data/link-edges"
         val edgeListFiles = "hdfs://ip-172-31-10-101:9000/data/edge-lists"
 
-        def md5(s: String): Long = {
+        def md5(s: String): Int = {
             val message = MessageDigest.getInstance("MD5").digest(s.getBytes)
-            ByteBuffer.wrap(message).getLong
+            ByteBuffer.wrap(message).getInt
         }
 
         // function to map src_url to its hash integer
         def mapVertexHash(record: String): (Long, String) = {
-            val error = md5("error")
+            val error = md5("error").toLong
             val r = record.split(" ")
             // Catch ArrayIndexOutOfBoundsException
             try {
                 val src_url = r(0)
-                (md5(src_url), src_url)
+                (md5(src_url).toLong, src_url)
             } catch {
                 case NonFatal(exc) => (error, "error")
             }
@@ -59,7 +59,7 @@ object pageRank {
         val ranks = graph.pageRank(0.0001).vertices
 
         // Map VertexIds to URL
-        // RDD[(url:Long, pageRank:Double)]
+        // RDD[(url:String, pageRank:Double)]
         val ranksByVertexUrl = vertices.join(ranks).map {
             case (id, (vid, rank)) => (vid, rank)
         }

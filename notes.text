@@ -1,3 +1,7 @@
+// graph.edgeListFile returns Graph[Int, Int], but VertexIds get expanded to Long, so...
+// 1) md5 hash URL to get Integer and save to edge list file
+// 2) load and process graph using Long
+
 // For Python Spark jobs, make sure Python dependencies are installed on every node!
 
 val vertices_string = vertices.map{ line =>
@@ -86,32 +90,32 @@ libraryDependencies += "com.martinkl.warc" % "warc-hadoop" % "0.1.0"
     {
         "Data": // Column Family
         {
-            "URL": // Column Qualifier
+            "VertexId": // Column Qualifier
+            {
+                "Timestamp1" : "md5(google.com)" // Cell Value
+            },
+            "URL":
             {
                 "Timestamp1" : "google.com"
             },
-            "PageRank": // Column Qualifier
+            "PageRank":
             {
-                "Timestamp1" : "0.28" // Timestamp/Version number : Cell Value
-            },
-            "VertexId":
-            {
-                "Timestamp1" : "md5(google.com)"
+                "Timestamp1" : "0.28"
             }
         },
         "Neighbors": // Column Family
         {
             "FirstDegree": // Column Qualifier
             {
-                "Timestamp1": Array[Long] // Timestamp/Version number : Cell Value
+                "Timestamp1": Array[String] // Cell Value
             },
             "SecondDegree":
             {
-                "Timestamp1": Array[Long]
+                "Timestamp1": Array[String]
             },
             "ThirdDegree":
             {
-                "Timestamp1": Array[Long]
+                "Timestamp1": Array[String]
             }
         }
     }
