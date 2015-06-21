@@ -8,14 +8,13 @@ import java.security.MessageDigest
 import java.nio.ByteBuffer
 import scala.sys.process._
 
-object edgeList {
+object vertexIds {
     def main(args: Array[String]) {
 
         // setup the Spark Context
-        val conf = new SparkConf().setAppName("CreateEdgeListFile")
+        val conf = new SparkConf().setAppName("CreateVertexIds")
         val sc = new SparkContext(conf)
 
-        //val warcFileEdges = "hdfs://ip-172-31-10-101:9000/common-crawl/crawl-data/CC-MAIN-2015-18/segments/1429246633512.41/warc/warc-edges-00000"
         val hdfsPath = "hdfs://"+sys.env("MASTER_NAME")+":9000"
         val warcFileEdges = hdfsPath+"/data/link-edges"
 
@@ -25,33 +24,33 @@ object edgeList {
             ByteBuffer.wrap(message).getInt
         }
 
-        // function to hash "(src_url, dst_url)" to long integers
-        def hashRecord(record: String): String = {
-            val error = md5("error").toString
+        // function to get vertex ID by md5 hashing URL
+        def vertexIdHash(record: String): Array[(Int, String)] = {
+            val error = md5("error")
             val r = record.split(" ")
             // Catch ArrayIndexOutOfBoundsException
             try {
                 val src_url = r(0)
                 val dst_url = r(1)
-                md5(src_url).toString + " " + md5(dst_url).toString
+                Array((md5(src_url), src_url), (md5(dst_url), dst_url))
             } catch {
-                case NonFatal(exc) => error + " " + error
+                case NonFatal(exc) => Array((error, "error"))
             }
         }
 
         // read in the data from HDFS
         val rdd = sc.textFile(warcFileEdges)
 
-        // map each record into a tuple consisting of the hash codes of (src_url, dst_url)
-        val edgeList = rdd.map(hashRecord).distinct()
+        // map the src_url and dst_url of each record to their vertex Id
+        val edgeList = rdd.map(vertexIdHash).flatMap(record => record).distinct()
 
         // delete existing directory
-        "hdfs dfs -rm -r -f /data/edge-lists" !
+        "hdfs dfs -rm -r -f /data/vertex-ids" !
         // save the data back into HDFS
-        val edgeListFileName = hdfsPath+"/data/edge-lists"
-        edgeList.saveAsTextFile(edgeListFileName)
+        val vertexIdFileName = hdfsPath+"/data/vertex-ids"
+        edgeList.saveAsTextFile(vertexIdFileName)
 
-        Console.print("Edge List file saved to /data/edge-lists\n")
+        Console.print("Vertex ID file saved to /data/vertex-ids\n")
 
     }
 }
