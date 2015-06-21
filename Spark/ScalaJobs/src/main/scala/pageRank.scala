@@ -26,6 +26,7 @@ object pageRank {
         val hdfsPath = "hdfs://"+sys.env("MASTER_NAME")+":9000"
         val warcFileEdges = hdfsPath+"/data/link-edges"
         val edgeListFiles = hdfsPath+"/data/edge-lists"
+        val vertexIdFiles = hdfsPath+"/data/vertex-ids"
 
         def md5(s: String): Int = {
             val message = MessageDigest.getInstance("MD5").digest(s.getBytes)
@@ -51,8 +52,13 @@ object pageRank {
 
         // map each VertexName to its VertexId
         // RDD[(Long, String)]
-        val vertices = rdd.map(mapVertexHash).reduceByKey((a, b) => a) // Removes duplicates
-        Console.print(vertices.take(10).mkString("\n") + "\n")
+        //val vertices = rdd.map(mapVertexHash).reduceByKey((a, b) => a) // Removes duplicates
+        //Console.print(vertices.take(10).mkString("\n") + "\n")
+        // RDD[record:(Long, String)]
+        val vertices = sc.textFile(vertexIdFiles).map { line =>
+            val fields = line.split(" ")
+            (fields(0).toLong, fields(1))
+        }
 
         // Setup GraphX graph
         val graph = GraphLoader.edgeListFile(sc, edgeListFiles)

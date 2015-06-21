@@ -19,6 +19,7 @@ object firstDegreeNeighbors {
         val hdfsPath = "hdfs://"+sys.env("MASTER_NAME")+":9000"
         val warcFileEdges = hdfsPath+"/data/link-edges"
         val edgeListFiles = hdfsPath+"/data/edge-lists"
+        val vertexIdFiles = hdfsPath+"/data/vertex-ids"
 
         def md5(s: String): Int = {
             val message = MessageDigest.getInstance("MD5").digest(s.getBytes)
@@ -47,7 +48,11 @@ object firstDegreeNeighbors {
         val rdd = sc.textFile(warcFileEdges)
 
         // map each VertexName to its VertexId
-        val vertices = rdd.map(mapVertexHash).reduceByKey((a, b) => a)
+        //val vertices = rdd.map(mapVertexHash).reduceByKey((a, b) => a)
+        val vertices = sc.textFile(vertexIdFiles).map { line =>
+            val fields = line.split(" ")
+            (fields(0).toLong, fields(1))
+        }
 
         // Setup GraphX graph
         val graph = GraphLoader.edgeListFile(sc, edgeListFiles)
