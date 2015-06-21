@@ -23,8 +23,9 @@ object pageRank {
         sparkConf.registerKryoClasses(Array(classOf[HBaseConfiguration], classOf[HTable], classOf[ByteBuffer], classOf[Put], classOf[Bytes]))
         val sc = new SparkContext(sparkConf)
 
-        val warcFileEdges = "hdfs://ip-172-31-10-101:9000/data/link-edges"
-        val edgeListFiles = "hdfs://ip-172-31-10-101:9000/data/edge-lists"
+        val hdfsPath = "hdfs://"+sys.env("MASTER_NAME")+":9000"
+        val warcFileEdges = hdfsPath+"/data/link-edges"
+        val edgeListFiles = hdfsPath+"/data/edge-lists"
 
         def md5(s: String): Int = {
             val message = MessageDigest.getInstance("MD5").digest(s.getBytes)

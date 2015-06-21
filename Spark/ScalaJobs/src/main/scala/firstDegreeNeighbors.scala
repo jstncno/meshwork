@@ -16,8 +16,9 @@ object firstDegreeNeighbors {
         val sc = new SparkContext(conf)
 
         //val warcFileEdges = "hdfs://ip-172-31-10-101:9000/common-crawl/crawl-data/CC-MAIN-2015-18/segments/1429246633512.41/warc/warc-edges-00000"
-        val warcFileEdges = "hdfs://ip-172-31-10-101:9000/data/link-edges"
-        val edgeListFiles = "hdfs://ip-172-31-10-101:9000/data/edge-lists"
+        val hdfsPath = "hdfs://"+sys.env("MASTER_NAME")+":9000"
+        val warcFileEdges = hdfsPath+"/data/link-edges"
+        val edgeListFiles = hdfs+"/data/edge-lists"
 
         def md5(s: String): Int = {
             val message = MessageDigest.getInstance("MD5").digest(s.getBytes)
