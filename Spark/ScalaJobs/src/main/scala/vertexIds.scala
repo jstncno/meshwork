@@ -25,16 +25,18 @@ object vertexIds {
         }
 
         // function to get vertex ID by md5 hashing URL
-        def vertexIdHash(record: String): Array[(Int, String)] = {
-            val error = md5("error")
+        def vertexIdHash(record: String): Array[String] = {
+            val error = md5("error").toString
             val r = record.split(" ")
             // Catch ArrayIndexOutOfBoundsException
             try {
                 val src_url = r(0)
                 val dst_url = r(1)
-                Array((md5(src_url), src_url), (md5(dst_url), dst_url))
+                val src = md5(src_url).toString + " " + src_url
+                val dst = md5(dst_url).toString + " " + dst_url
+                Array(src, dst)
             } catch {
-                case NonFatal(exc) => Array((error, "error"))
+                case NonFatal(exc) => Array(error + " error")
             }
         }
 
