@@ -52,7 +52,7 @@ object firstDegreeNeighbors {
         val vertices = sc.textFile(vertexIdFiles).map { line =>
             val fields = line.split(" ")
             (fields(0).toLong, fields(1))
-        }
+        }.distinct()
 
         // Setup GraphX graph
         val graph = GraphLoader.edgeListFile(sc, edgeListFiles)
