@@ -23,7 +23,7 @@ object pageRank {
         sparkConf.registerKryoClasses(Array(classOf[HBaseConfiguration], classOf[HTable], classOf[ByteBuffer], classOf[Put], classOf[Bytes]))
         val sc = new SparkContext(sparkConf)
 
-        val hdfsPath = "hdfs://"+sys.env("MASTER_NAME")+":9000"
+        val hdfsPath = "hdfs://"+sys.env("HADOOP_IP")+":9000"
         val warcFileEdges = hdfsPath+"/data/link-edges"
         val edgeListFiles = hdfsPath+"/data/edge-lists"
         val vertexIdFiles = hdfsPath+"/data/vertex-ids"

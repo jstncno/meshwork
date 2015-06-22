@@ -16,7 +16,7 @@ object firstDegreeNeighbors {
         val sc = new SparkContext(conf)
 
         //val warcFileEdges = "hdfs://ip-172-31-10-101:9000/common-crawl/crawl-data/CC-MAIN-2015-18/segments/1429246633512.41/warc/warc-edges-00000"
-        val hdfsPath = "hdfs://"+sys.env("MASTER_NAME")+":9000"
+        val hdfsPath = "hdfs://"+sys.env("HADOOP_IP")+":9000"
         val warcFileEdges = hdfsPath+"/data/link-edges"
         val edgeListFiles = hdfsPath+"/data/edge-lists"
         val vertexIdFiles = hdfsPath+"/data/vertex-ids"
