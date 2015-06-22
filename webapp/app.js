@@ -1,6 +1,7 @@
 var express = require('express');
 var app = express();
 var hbase = require('hbase');
+var md5 = require('MD5');
 
 var dbPort = 10001;
 var hbaseClient = new hbase.Client({ host: '52.8.87.99', port: dbPort });
@@ -11,7 +12,10 @@ app.get('/', function (req, res) {
 });
 
 var fetchDB = function(req, res, next) {
-    var row = websitesTable.row(req.params.key);
+    var keyHash = md5(req.params.key);
+    var buf = new Buffer(keyHash, 'hex');
+    var rowKey = buf.readInt32BE(0).toString();
+    var row = websitesTable.row(rowKey);
     row.get(function(error, value){
         if (error) {
             return next(new Error("Invalid key! " + error));
