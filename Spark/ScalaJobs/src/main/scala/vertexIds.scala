@@ -8,12 +8,20 @@ import java.security.MessageDigest
 import java.nio.ByteBuffer
 import scala.sys.process._
 
+import org.apache.spark.serializer.KryoSerializer
+
+import org.apache.hadoop.hbase.util.Bytes
+import org.apache.hadoop.hbase.client.{HBaseAdmin,HTable,Put,Get}
+import org.apache.hadoop.hbase.{HBaseConfiguration, HTableDescriptor, TableName}
+
 object vertexIds {
     def main(args: Array[String]) {
 
         // setup the Spark Context
-        val conf = new SparkConf().setAppName("CreateVertexIds")
-        val sc = new SparkContext(conf)
+        val sparkConf = new SparkConf().setAppName("CreateVertexIds")
+        sparkConf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+        sparkConf.registerKryoClasses(Array(classOf[HBaseConfiguration], classOf[HTable], classOf[ByteBuffer], classOf[Put], classOf[Bytes]))
+        val sc = new SparkContext(sparkConf)
 
         val hdfsPath = "hdfs://"+sys.env("MASTER_NAME")+":9000"
         val warcFileEdges = hdfsPath+"/data/link-edges"
@@ -44,15 +52,37 @@ object vertexIds {
         val rdd = sc.textFile(warcFileEdges)
 
         // map the src_url and dst_url of each record to their vertex Id
-        val edgeList = rdd.map(vertexIdHash).flatMap(record => record).distinct()
+        val vertexIds = rdd.map(vertexIdHash).flatMap(record => record).distinct()
 
         // delete existing directory
         "hdfs dfs -rm -r -f /data/vertex-ids" !
         // save the data back into HDFS
         val vertexIdFileName = hdfsPath+"/data/vertex-ids"
-        edgeList.saveAsTextFile(vertexIdFileName)
+        vertexIds.saveAsTextFile(vertexIdFileName)
 
         Console.print("Vertex ID file saved to /data/vertex-ids\n")
 
+        // Store URLs and VertexIds in HBase
+        def putInHBase(vertex: String): Unit = {
+            val hbaseConf = HBaseConfiguration.create()
+            val tableName = "websites"
+            val table = new HTable(hbaseConf, tableName)
+            val record = vertex.split(" ")
+            val vertexId = record(0)
+            val vertexUrl = record(1)
+            // Row key is URL name
+            val putter = new Put(Bytes.toBytes(vertexUrl))
+            val dataFamilyName = Bytes.toBytes("Data")
+            val vertexIdQualifierName = Bytes.toBytes("VertexId")
+            val vertexIdValue = Bytes.toBytes(vertexId)
+            putter.addColumn(dataFamilyName, vertexIdQualifierName, vertexIdValue)
+            val urlQualifierName = Bytes.toBytes("URL")
+            val urlValue = Bytes.toBytes(vertexUrl)
+            putter.addColumn(dataFamilyName, urlQualifierName, urlValue)
+            table.put(putter)
+            table.close()
+        }
+
+        Console.print(vertexIds.map(putInHBase).count())
     }
 }
