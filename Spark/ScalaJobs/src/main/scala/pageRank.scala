@@ -69,7 +69,7 @@ object pageRank {
         // RDD[(url:String, pageRank:Double)]
         val ranksByVertexUrl = vertices.join(ranks).map {
             case (id, (vid, rank)) => (vid, rank)
-        }
+        }.distinct()
 
         Console.print(ranksByVertexUrl.take(10).mkString("\n") + "\n")
 

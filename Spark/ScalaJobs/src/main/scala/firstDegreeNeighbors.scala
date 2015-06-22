@@ -64,7 +64,7 @@ object firstDegreeNeighbors {
         // Map VertexIds to URL
         val neighborsByVertexId = vertices.join(neighbors).map {
             case (id, (vid, n)) => (vid, n)
-        }
+        }.distinct()
 
         Console.print(neighborsByVertexId.take(10).mkString("\n") + "\n")
     }
