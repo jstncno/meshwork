@@ -82,6 +82,12 @@ object pageRank {
             // Row key is URL name
             val putter = new Put(Bytes.toBytes(vertex._1))
             val dataFamilyName = Bytes.toBytes("Data")
+            val vertexIdQualifierName = Bytes.toBytes("VertexId")
+            val vertexIdValue = Bytes.toBytes(vertexId)
+            putter.addColumn(dataFamilyName, vertexIdQualifierName, vertexIdValue)
+            val urlQualifierName = Bytes.toBytes("URL")
+            val urlValue = Bytes.toBytes(vertex._1)
+            putter.addColumn(dataFamilyName, urlQualifierName, urlValue)
             val pageRankQualifierName = Bytes.toBytes("PageRank")
             val pageRankValue = Bytes.toBytes(vertex._2.toString)
             putter.addColumn(dataFamilyName, pageRankQualifierName, pageRankValue)
