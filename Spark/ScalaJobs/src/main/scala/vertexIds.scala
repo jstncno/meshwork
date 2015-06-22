@@ -83,6 +83,6 @@ object vertexIds {
             table.close()
         }
 
-        Console.print(vertexIds.map(putInHBase).count())
+        //Console.print(vertexIds.map(putInHBase).count())
     }
 }
