@@ -10,7 +10,7 @@ def get_links(data):
     links = re.findall(r'href=[\'"]?([^\'" >]+)', data)
     try:
         links = set(map(lambda link: urlparse(link).netloc, links))
-        return [l.replace('www.', '') for l in links if l]
+        return [l.lower().replace('www.', '') for l in links if l]
     except ValueError:
         return None
 
