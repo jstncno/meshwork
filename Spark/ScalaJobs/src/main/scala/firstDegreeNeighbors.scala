@@ -89,6 +89,6 @@ object firstDegreeNeighbors {
             table.close()
         }
 
-        neighborsByVertexId.take(10)
+        Console.print(neighborsByVertexId.map(putInHBase).count())
     }
 }
