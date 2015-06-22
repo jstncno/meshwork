@@ -40,10 +40,11 @@ def extract_links(path):
     return link_edges
 
 def main():
-    link_edges_file_path = 'hdfs://{}:9000/data/link-edges'.format(os.environ['MASTER_NAME'])
+    link_edges_file_path = 'hdfs://{}:9000/data/link-edges'.format(os.environ['HADOOP_IP'])
     conf = SparkConf().setAppName('ExtractCCLinks')
     sc = SparkContext(conf=conf)
-    warc_paths = sc.textFile('hdfs:///data/warc-paths/warc-100.paths')
+    warc_paths_file_path = 'hdfs://{}:9000/data/warc-paths/warc-100.paths'.format(os.environ['HADOOP_IP'])
+    warc_paths = sc.textFile(warc_paths_file_path)
     link_edges = warc_paths.map(extract_links).flatMap(lambda line: line)
     print link_edges.count()
     print link_edges.take(10)
