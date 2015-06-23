@@ -4,6 +4,7 @@ import org.apache.spark.SparkConf
 import org.apache.spark.graphx._
 import org.apache.spark.rdd.RDD
 import scala.util.control.NonFatal
+import scala.sys.process._
 
 import java.security.MessageDigest
 import java.nio.ByteBuffer
@@ -35,7 +36,8 @@ object firstDegreeNeighbors {
 
         // sendMsg function to send to all edges in graph
         def sendDstIdToSrc(ec:EdgeContext[Int, Int, Array[Long]]): Unit = {
-            ec.sendToSrc(Array(ec.dstId))
+            //ec.sendToSrc(Array(ec.dstId))
+            ec.sendToDst(Array(ec.srcId))
         }
 
         // function to map src_url to its hash integer
@@ -74,10 +76,11 @@ object firstDegreeNeighbors {
         }.distinct()
 
         // Save to HDFS
+        /*"hdfs dfs -rm -r -f /data/first-degree-neighbors" !
         neighborsByVertexId.map { record =>
             val neighborsString = record._2.mkString(",")
             record._1+","+neighborsString
-        }.saveAsTextFile(firstDegreeFiles)
+        }.saveAsTextFile(firstDegreeFiles)*/
 
         def putInHBase(vertex: (String, Array[Long])): Unit = {
             val hbaseConf = HBaseConfiguration.create()
@@ -96,6 +99,6 @@ object firstDegreeNeighbors {
             table.close()
         }
 
-        //Console.print(neighborsByVertexId.map(putInHBase).count())
+        Console.print(neighborsByVertexId.map(putInHBase).count())
     }
 }
