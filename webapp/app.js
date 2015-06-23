@@ -11,11 +11,16 @@ app.get('/', function (req, res) {
   res.send('Hello World!');
 });
 
-var fetchDB = function(req, res, next) {
+var getRowKey = function(req, res, next) {
     var keyHash = md5(req.params.key);
     var buf = new Buffer(keyHash, 'hex');
     var rowKey = buf.readInt32BE(0).toString();
-    var row = websitesTable.row(rowKey);
+    req.params.key = rowKey;
+    next();
+}
+
+var fetchDB = function(req, res, next) {
+    var row = websitesTable.row(req.params.key);
     row.get(function(error, record){
         if (error) {
             return next(new Error("Invalid key! " + error));
@@ -53,7 +58,7 @@ var fetchDB = function(req, res, next) {
     });
 }
 
-app.get('/:key', fetchDB, function(req, res) {
+app.get('/search/:key', getRowKey, fetchDB, function(req, res) {
     var data = req.url+'\n'+req.vertexId+'\n'+req.pageRank+'\n';
     res.send(req.data);
     //res.send(req.params.key);
@@ -72,6 +77,11 @@ app.get('/:key', fetchDB, function(req, res) {
         console.log('\n');
     });
     */
+});
+
+app.get('/id/:key', fetchDB, function(req, res) {
+    var data = req.url+'\n'+req.vertexId+'\n'+req.pageRank+'\n';
+    res.send(req.data);
 });
 
 var server = app.listen(3000, function () {
