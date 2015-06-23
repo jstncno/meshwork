@@ -41,7 +41,7 @@ object secondDegreeNeighbors {
 
         // Find second-degree neighbors of each vertex
         // Neighbers represented as Set[VertexId]
-        def getSecondDegreeNeighbors(vertex: (Long, String)) = {
+        def getSecondDegreeNeighbors(vertex: (Long, String)): (String, Set[String]) = {
             val hbaseConf = HBaseConfiguration.create()
             hbaseConf.set("hbase.zookeeper.quorum", "ec2-52-8-87-99.us-west-1.compute.amazonaws.com")
             hbaseConf.set("hbase.zookeeper.property.clientPort", "2181")
@@ -54,15 +54,25 @@ object secondDegreeNeighbors {
             getter.addColumn(neighborsFamilyName, firstDegreeQualifierName)
             val results = table.get(getter).value()
             if (results != null) {
-                val value = new String(results)
-                (vertex._2, value.split(",").toSet)
+                var secondDegreeNeighbors = Set[String]()
+                val firstDegreeNeighbors = new String(results).split(",").toSet
+                for (neighbor <- firstDegreeNeighbors) {
+                    // neighbor is a vertexId
+                    val neighborGetter = new Get(Bytes.toBytes(neighbor))
+                    neighborGetter.addColumn(neighborsFamilyName, firstDegreeQualifierName)
+                    val r = table.get(neighborGetter).value()
+                    if (r != null) {
+                        secondDegreeNeighbors ++= new String(r).split(",").toSet
+                    }
+                }
+                (vertex._2, secondDegreeNeighbors)
             } else {
-                (vertex._2, Set())
+                (vertex._2, Set[String]())
             }
         }
 
         //val neighbors = vertices.map(getSecondDegreeNeighbors).reduce(_ ++ _)
         val neighbors = vertices.map(getSecondDegreeNeighbors)
-        Console.print(neighbors.take(10))
+        Console.print(neighbors.take(1)(0)._2)
     }
 }
