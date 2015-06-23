@@ -1,6 +1,0 @@
-# $HADOOP_HOME/etc/hadoop/slaves
-<DATANODE_PRIVATE_IP>
-<DATANODE_PRIVATE_IP>
-<DATANODE_PRIVATE_IP>
-
-# Run `sudo chown -R <USER> $HADOOP_HOME` to give persmission to <USER>
