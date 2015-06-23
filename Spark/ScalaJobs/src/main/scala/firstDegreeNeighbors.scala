@@ -35,36 +35,38 @@ object firstDegreeNeighbors {
         }
 
         // sendMsg function to send to all edges in graph
-        def sendDstIdToSrc(ec:EdgeContext[Int, Int, Array[Long]]): Unit = {
+        def sendDstIdToSrc(ec:EdgeContext[String, String, Array[Long]]): Unit = {
             //ec.sendToSrc(Array(ec.dstId))
             ec.sendToDst(Array(ec.srcId))
         }
 
         // function to map src_url to its hash integer
-        def mapVertexHash(record: String): (Long, String) = {
+        def mapEdges(record: String): Edge[String] = {
             val error = md5("error").toLong
             val r = record.split(" ")
             // Catch ArrayIndexOutOfBoundsException
             try {
                 val src_url = r(0)
-                (md5(src_url).toLong, src_url)
+                val dst_url = r(1)
+                Edge(md5(src_url).toLong, md5(dst_url).toLong, "In-link")
             } catch {
-                case NonFatal(exc) => (error, "error")
+                case NonFatal(exc) => Edge(error, error, "Error")
             }
         }
 
         // read in the data from HDFS
-        val rdd = sc.textFile(warcFileEdges)
+        val edges = sc.textFile(edgeListFiles).map(mapEdges) 
 
         // map each VertexName to its VertexId
         //val vertices = rdd.map(mapVertexHash).reduceByKey((a, b) => a)
-        val vertices = sc.textFile(vertexIdFiles).map { line =>
+        val vertices:RDD[(VertexId, String)] = sc.textFile(vertexIdFiles).map { line =>
             val fields = line.split(" ")
             (fields(0).toLong, fields(1))
         }.distinct()
 
         // Setup GraphX graph
-        val graph = GraphLoader.edgeListFile(sc, edgeListFiles)
+        //val graph = GraphLoader.edgeListFile(sc, edgeListFiles)
+        val graph = Graph(vertices, edges)
 
         // Find first-degree neighbors of each vertex
         // Neighbers represented as Array[VertexId]
@@ -89,8 +91,8 @@ object firstDegreeNeighbors {
             val tableName = "websites"
             val table = new HTable(hbaseConf, tableName)
             val vertexId = md5(vertex._1).toString
-            // Row key is md5 hash of URL (vertexId)
-            val putter = new Put(Bytes.toBytes(vertexId))
+            // Row key vertex URL
+            val putter = new Put(Bytes.toBytes(vertex._1))
             val neighborsFamilyName = Bytes.toBytes("Neighbors")
             val firstDegreeQualifierName = Bytes.toBytes("FirstDegree")
             val firstDegreeValue = Bytes.toBytes(vertex._2.mkString(","))
@@ -99,6 +101,6 @@ object firstDegreeNeighbors {
             table.close()
         }
 
-        Console.print(neighborsByVertexId.map(putInHBase).count())
+        //Console.print(neighborsByVertexId.map(putInHBase).count())
     }
 }
