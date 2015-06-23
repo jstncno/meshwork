@@ -12,9 +12,16 @@ app.get('/', function (req, res) {
 });
 
 var getRowKey = function(req, res, next) {
-    var keyHash = md5(req.params.key);
-    var buf = new Buffer(keyHash, 'hex');
-    var rowKey = buf.readInt32BE(0).toString();
+    var query, rowKey;
+    query = req.query.id;
+    if(query) {
+        rowKey = query;
+    } else {
+        query = req.query.url;
+        var keyHash = md5(query);
+        var buf = new Buffer(keyHash, 'hex');
+        rowKey = buf.readInt32BE(0).toString();
+    }
     req.params.key = rowKey;
     next();
 }
@@ -52,28 +59,12 @@ var fetchDB = function(req, res, next) {
                     break;
             }
         }
-
         req.data = data;
         next();
     });
 }
-/*
-var fetchNeighborNeighbors = function(req, res, next) {
-    var firstDegreeNeighbors = req.data['Neighbors']['FirstDegree'];
-    for(index in firstDegreeNeighbors) {
-        var row = websitesTable.row(firstDegreeNeighbors[index]);
-        row.get(function(error, record){
-        });
-    }
-}
-*/
-app.get('/search/:key', getRowKey, fetchDB, function(req, res) {
-    var data = req.url+'\n'+req.vertexId+'\n'+req.pageRank+'\n';
-    res.send(JSON.stringify(req.data));
-});
 
-app.get('/id/:key', fetchDB, function(req, res) {
-    var data = req.url+'\n'+req.vertexId+'\n'+req.pageRank+'\n';
+app.get('/search', getRowKey, fetchDB, function(req, res) {
     res.send(JSON.stringify(req.data));
 });
 
