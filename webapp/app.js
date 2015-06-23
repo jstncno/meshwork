@@ -5,7 +5,7 @@ var md5 = require('MD5');
 
 var dbPort = 10001;
 var hbaseClient = new hbase.Client({ host: '52.8.87.99', port: dbPort });
-var websitesTable = new hbase.Table(hbaseClient, 'websites');
+var websitesTable = new hbase.Table(hbaseClient, 'websitesClone06232015');
 
 app.get('/', function (req, res) {
   res.send('Hello World!');
@@ -57,26 +57,19 @@ var fetchDB = function(req, res, next) {
         next();
     });
 }
-
+/*
+var fetchNeighborNeighbors = function(req, res, next) {
+    var firstDegreeNeighbors = req.data['Neighbors']['FirstDegree'];
+    for(index in firstDegreeNeighbors) {
+        var row = websitesTable.row(firstDegreeNeighbors[index]);
+        row.get(function(error, record){
+        });
+    }
+}
+*/
 app.get('/search/:key', getRowKey, fetchDB, function(req, res) {
     var data = req.url+'\n'+req.vertexId+'\n'+req.pageRank+'\n';
     res.send(req.data);
-    //res.send(req.params.key);
-    /*
-    row.get('Data:PageRank', function(error, value){
-        console.log(value[0].column.toString());
-        console.log(value[0]['$'].toString());
-        //console.log(value[0]['$'].readDoubleBE(0));
-        //console.log(value[0]['$'].readDoubleLE(0));
-        console.log('\n');
-    });
-
-    row.get('Data:URL', function(error, value){
-        console.log(value[0].column.toString());
-        console.log(value[0]['$'].toString());
-        console.log('\n');
-    });
-    */
 });
 
 app.get('/id/:key', fetchDB, function(req, res) {
