@@ -16,20 +16,38 @@ var fetchDB = function(req, res, next) {
     var buf = new Buffer(keyHash, 'hex');
     var rowKey = buf.readInt32BE(0).toString();
     var row = websitesTable.row(rowKey);
-    row.get(function(error, value){
+    row.get(function(error, record){
         if (error) {
             return next(new Error("Invalid key! " + error));
         }
-        data = {}
-        req.numItems = value.length.toString();
-        data['vertexId'] = value[2]['$'].toString();
-        req.vertexId = value[2]['$'].toString();
-        data['pageRank'] = value[0]['$'].toString();
-        req.pageRank = value[0]['$'].toString();
-        data['url'] = value[1]['$'].toString();
-        req.url = value[1]['$'].toString();
-        console.log(value[0].column.toString());
-        console.log(value[0]['$'].toString());
+        var data = {}
+        data['Data'] = {}
+        data['Neighbors'] = {}
+
+        for (index in record) {
+            var value = record[index]['$'].toString();
+            var column = record[index]['column'].toString();
+            switch (column) {
+                case 'Data:PageRank':
+                    data['Data']['PageRank'] = value;
+                    break;
+                case 'Data:URL':
+                    data['Data']['URL'] = value;
+                    break;
+                case 'Data:VertexId':
+                    data['Data']['VertexId'] = value;
+                    break;
+                case 'Neighbors:FirstDegree':
+                    data['Neighbors']['FirstDegree'] = value.split(',');
+                    break;
+                case 'Neighbors:SecondDegree':
+                    data['Neighbors']['SecondDegree'] = value.split(',');
+                    break;
+                default:
+                    break;
+            }
+        }
+
         req.data = data;
         next();
     });
