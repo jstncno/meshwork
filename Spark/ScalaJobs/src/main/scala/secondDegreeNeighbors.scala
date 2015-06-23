@@ -52,8 +52,13 @@ object secondDegreeNeighbors {
             val neighborsFamilyName = Bytes.toBytes("Neighbors")
             val firstDegreeQualifierName = Bytes.toBytes("FirstDegree")
             getter.addColumn(neighborsFamilyName, firstDegreeQualifierName)
-            val results = new String(table.get(getter).value())
-            (vertexId, results.split(",").toSet)
+            val results = table.get(getter).value()
+            if (results != null) {
+                val value = new String(results)
+                (vertex._2, value.split(",").toSet)
+            } else {
+                (vertex._2, Set())
+            }
         }
 
         //val neighbors = vertices.map(getSecondDegreeNeighbors).reduce(_ ++ _)
