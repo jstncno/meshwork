@@ -5,7 +5,7 @@ var md5 = require('MD5');
 
 var dbPort = 10001;
 var hbaseClient = new hbase.Client({ host: '52.8.87.99', port: dbPort });
-var websitesTable = new hbase.Table(hbaseClient, 'websitesClone06232015');
+var websitesTable = new hbase.Table(hbaseClient, 'websites');
 
 app.get('/', function (req, res) {
   res.send('Hello World!');
@@ -69,12 +69,12 @@ var fetchNeighborNeighbors = function(req, res, next) {
 */
 app.get('/search/:key', getRowKey, fetchDB, function(req, res) {
     var data = req.url+'\n'+req.vertexId+'\n'+req.pageRank+'\n';
-    res.send(req.data);
+    res.send(JSON.stringify(req.data));
 });
 
 app.get('/id/:key', fetchDB, function(req, res) {
     var data = req.url+'\n'+req.vertexId+'\n'+req.pageRank+'\n';
-    res.send(req.data);
+    res.send(JSON.stringify(req.data));
 });
 
 var server = app.listen(3000, function () {
