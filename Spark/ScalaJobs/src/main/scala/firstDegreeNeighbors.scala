@@ -26,6 +26,7 @@ object firstDegreeNeighbors {
         val warcFileEdges = hdfsPath+"/data/link-edges"
         val edgeListFiles = hdfsPath+"/data/edge-lists"
         val vertexIdFiles = hdfsPath+"/data/vertex-ids"
+        val firstDegreeFiles = hdfsPath+"/data/first-degree-neighbors"
 
         def md5(s: String): Int = {
             val message = MessageDigest.getInstance("MD5").digest(s.getBytes)
@@ -72,6 +73,12 @@ object firstDegreeNeighbors {
             case (id, (vid, n)) => (vid, n)
         }.distinct()
 
+        // Save to HDFS
+        neighborsByVertexId.map { record =>
+            val neighborsString = record._2.mkString(",")
+            record._1+","+neighborsString
+        }.saveAsTextFile(firstDegreeFiles)
+
         def putInHBase(vertex: (String, Array[Long])): Unit = {
             val hbaseConf = HBaseConfiguration.create()
             hbaseConf.set("hbase.zookeeper.quorum", "ec2-52-8-87-99.us-west-1.compute.amazonaws.com")
@@ -89,6 +96,6 @@ object firstDegreeNeighbors {
             table.close()
         }
 
-        Console.print(neighborsByVertexId.map(putInHBase).count())
+        //Console.print(neighborsByVertexId.map(putInHBase).count())
     }
 }
