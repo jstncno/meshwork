@@ -71,8 +71,26 @@ object secondDegreeNeighbors {
             }
         }
 
-        //val neighbors = vertices.map(getSecondDegreeNeighbors).reduce(_ ++ _)
         val neighbors = vertices.map(getSecondDegreeNeighbors)
         Console.print(neighbors.take(1)(0)._2)
+
+        def putInHBase(vertex: (String, Set[String])): Unit = {
+            val hbaseConf = HBaseConfiguration.create()
+            hbaseConf.set("hbase.zookeeper.quorum", "ec2-52-8-87-99.us-west-1.compute.amazonaws.com")
+            hbaseConf.set("hbase.zookeeper.property.clientPort", "2181")
+            val tableName = "websites"
+            val table = new HTable(hbaseConf, tableName)
+            val vertexId = md5(vertex._1).toString
+            // Row key is md5 hash of URL (vertexId)
+            val putter = new Put(Bytes.toBytes(vertexId))
+            val neighborsFamilyName = Bytes.toBytes("Neighbors")
+            val secondDegreeQualifierName = Bytes.toBytes("SecondDegree")
+            val secondDegreeValue = Bytes.toBytes(vertex._2.mkString(","))
+            putter.addColumn(neighborsFamilyName, secondDegreeQualifierName, secondDegreeValue)
+            table.put(putter)
+            table.close()
+        }
+
+        Console.print(neighbors.map(putInHBase).count())
     }
 }
