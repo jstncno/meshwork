@@ -5,7 +5,7 @@ var VertexListContainer = React.createClass({
   render: function() {
     return (
       <div className="vertexListContainer">
-        <VertexList data={this.state.data} />
+        <VertexList data={this.props.data} />
       </div>
     );
   }
