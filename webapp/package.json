@@ -1,0 +1,18 @@
+{
+  "name": "meshwork",
+  "version": "1.0.0",
+  "description": "Find the connected mesh of a web page",
+  "main": "restserver.js",
+  "dependencies": {
+    "MD5": "^1.2.2",
+    "express": "^4.13.0",
+    "hbase": "^0.2.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "Justin Cano",
+  "license": "ISC"
+}

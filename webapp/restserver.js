@@ -59,12 +59,16 @@ var fetchDB = function(req, res, next) {
                     break;
             }
         }
-        req.data = data;
+        req.data = [data];
         next();
     });
 }
 
 app.get('/search', getRowKey, fetchDB, function(req, res) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    res.header('Content-Type', 'application/json');
     res.send(JSON.stringify(req.data));
 });
 
