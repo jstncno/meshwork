@@ -28,7 +28,8 @@ var VertexList = React.createClass({
   render: function() {
     var vertexNodes = this.props.data.map(function (vertex) {
       return (
-        <Vertex id={vertex.pageRank} url={vertex.url}>
+        <Vertex key={vertex.pageRank} url={vertex.url}>
+            {vertex.pageRank}
         </Vertex>
       );
     });
