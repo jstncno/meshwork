@@ -1,7 +1,7 @@
 var VertexListContainer = React.createClass({
-  getInitialState: function() {
+  /*getInitialState: function() {
     return {data: []};
-  },
+  },*/
   render: function() {
     return (
       <div className="vertexListContainer">
@@ -42,6 +42,6 @@ var Vertex = React.createClass({
 });
 
 React.render(
-  <VertexListContainer url="vertices.json" />,
+  <VertexListContainer data="vertices.json" />,
   document.getElementById('content')
 );
