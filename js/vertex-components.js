@@ -42,6 +42,12 @@ var VertexList = React.createClass({
 });
 
 var Vertex = React.createClass({
+  componentDidUpdate: function(prevProps, prevState) {
+    var $vertexList = $('.testWrapper');
+    $wrapper.find('.vertex').sort(function (a, b) {
+      return +a.getAttribute('key') - +b.getAttribute('key');
+    }).appendTo( $wrapper );    
+  },
   render: function() {
     return (
       <div className="vertex">
