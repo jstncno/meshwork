@@ -26,10 +26,11 @@ var VertexListContainer = React.createClass({
 
 var VertexList = React.createClass({
   render: function() {
+    console.log(this.props.data);
     var vertexNodes = this.props.data.map(function (vertex) {
       return (
-        <Vertex key={vertex.pageRank} url={vertex.url}>
-            {vertex.pageRank}
+        <Vertex key={vertex['Data']['PageRank']} url={vertex['Data']['URL']}>
+            {vertex['Data']['PageRank']}
         </Vertex>
       );
     });
@@ -66,6 +67,6 @@ var Vertex = React.createClass({
 });
 
 React.render(
-  <VertexListContainer url="js/vertices.json" />,
+  <VertexListContainer url="http://ec2-52-8-87-99.us-west-1.compute.amazonaws.com:3000/search?url=about.me" />,
   document.getElementById('content')
 );
