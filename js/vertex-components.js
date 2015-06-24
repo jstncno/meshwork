@@ -55,6 +55,6 @@ var Vertex = React.createClass({
 });
 
 React.render(
-  <VertexListContainer url="vertices.json" />,
+  <VertexListContainer url="js/vertices.json" />,
   document.getElementById('content')
 );
