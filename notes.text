@@ -1,3 +1,13 @@
+// use mapParition() rather than map():
+val vertices = sc.textFile(vertexIdFiles).map { line =>
+            val fields = line.split(" ")
+            (fields(0).toLong, fields(1))
+        }.distinct()
+//check how many partitions
+vertices.numPartitions
+// repartion num = 4x cores
+val vertices.repartition(80).mapPartitions(getSecondDegreeNeighbors)
+
 // graph.edgeListFile returns Graph[Int, Int], but VertexIds get expanded to Long, so...
 // 1) md5 hash URL to get Integer and save to edge list file
 // 2) load and process graph using Long
