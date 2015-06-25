@@ -5,9 +5,9 @@ var VertexListContainer = React.createClass({
   getInitialState: function() {
     return {data: []};
   },
-  componentDidUpdate: function(nextProps, nextState) {
+  componentWillReceiveProps: function(nextProps) {
     $.ajax({
-      url: this.props.url,
+      url: nextProps.url,
       dataType: 'json',
       cache: false,
       success: function(data) {
@@ -21,7 +21,7 @@ var VertexListContainer = React.createClass({
   render: function() {
     return (
       <div className="vertexListContainer">
-        <VertexList data={this.state.data} />
+        <VertexList data={this.state.data[0]} />
       </div>
     );
   }
@@ -32,9 +32,9 @@ var VertexList = React.createClass({
     return {neighbors: []};
   },
   componentWillReceiveProps: function(nextProps) {
-    var n = nextProps.data[0];
+    var n = nextProps.data;
     if(n != undefined) {
-      console.log(n['Neighbors']['FirstDegree']);
+      console.log(n['Neighbors']['FirstDegree'].length + ' neighbors');
       this.setState({neighbors: n['Neighbors']['FirstDegree']});
     }
   },
@@ -99,10 +99,12 @@ var Meshwork = React.createClass({
     return {query: '', text: ''};
   },
   onChange: function(e) {
-    this.setState({query: searchUrl+e.target.value, text: e.target.value});
+    this.setState({text: e.target.value});
   },
   handleSubmit: function(e) {
     e.preventDefault();
+    console.log(this.state.text);
+    this.setState({query: searchUrl+this.state.text});
   },
   render: function() {
     return (
