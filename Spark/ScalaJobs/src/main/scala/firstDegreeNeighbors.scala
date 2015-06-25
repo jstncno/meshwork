@@ -132,7 +132,7 @@ object firstDegreeNeighbors {
                 } else if (pageRank1 == null && pageRank2 != null) {
                     0 compare 1
                 } else {
-                    new String(pageRank1).toDouble compare new String(pageRank2).toDouble
+                    new String(pageRank2).toDouble compare new String(pageRank1).toDouble
                 }
             }
         }
