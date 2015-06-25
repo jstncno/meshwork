@@ -74,6 +74,7 @@ object firstDegreeNeighbors {
         val neighbors = graph.aggregateMessages[Array[Long]](sendDstIdToSrc, _ ++ _)
 
         // Map VertexIds to URL
+        // (VertexIds: String, Neighbors: Array[Long])
         val neighborsByVertexId = vertices.join(neighbors).map {
             case (id, (vid, n)) => (vid, n)
         }.distinct().repartition(80) // 4 x 20 cores
@@ -138,9 +139,19 @@ object firstDegreeNeighbors {
         }
 
         // Top K neighbors (by page rank) of vertex
-        def getTopKNeighbors(vertex: (String, Array[Long]), k: Int) = {
+        def getTopKNeighbors(vertex: (String, Array[Long]), k: Int): (String, Array[Long]) = {
             Sorting.quickSort(vertex._2)(PageRankOrdering)
-            vertex._2.take(k)
+            (vertex._1, vertex._2.take(k))
+        }
+
+        // neighborsByVertexId
+        // RDD[(VertexIds: String, Neighbors: Array[Long])]
+        val top100Neighbors = neighborsByVertexId.mapPartitions{ partitions => 
+            var res = Array[(String, Array[Long])]()
+            for (row <- partitions) {
+                res :+= getTopKNeighbors(row, 100)
+            }
+            res.iterator
         }
     }
 }
