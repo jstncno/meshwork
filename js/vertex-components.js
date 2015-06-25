@@ -1,9 +1,11 @@
+var searchUrl = 'http://ec2-52-8-87-99.us-west-1.compute.amazonaws.com:3000/search?url=';
+var dataUrl = 'http://ec2-52-8-87-99.us-west-1.compute.amazonaws.com:3000/data?id=';
+
 var VertexListContainer = React.createClass({
   getInitialState: function() {
     return {data: []};
   },
   componentDidUpdate: function(nextProps, nextState) {
-    console.log(nextProps.url);
     $.ajax({
       url: this.props.url,
       dataType: 'json',
@@ -26,11 +28,21 @@ var VertexListContainer = React.createClass({
 });
 
 var VertexList = React.createClass({
+  getInitialState: function() {
+    return {neighbors: []};
+  },
+  componentWillReceiveProps: function(nextProps) {
+    var n = nextProps.data[0];
+    if(n != undefined) {
+      console.log(n['Neighbors']['FirstDegree']);
+      this.setState({neighbors: n['Neighbors']['FirstDegree']});
+    }
+  },
   render: function() {
-    var vertexNodes = this.props.data.map(function (vertex) {
+    var vertexNodes = this.state.neighbors.map(function (vertex) {
       return (
-        <Vertex key={vertex['Data']['PageRank']} url={vertex['Data']['URL']}>
-            {vertex['Data']['PageRank']}
+        <Vertex key={vertex} vertexId={vertex}>
+            {vertex}
         </Vertex>
       );
     });
@@ -43,23 +55,39 @@ var VertexList = React.createClass({
 });
 
 var Vertex = React.createClass({
+  getInitialState: function() {
+    return {data: []};
+  },
   componentDidMount: function() {
+    $.ajax({
+      url: dataUrl+this.props.vertexId,
+      dataType: 'json',
+      cache: false,
+      success: function(data) {
+        this.setState({data: data});
+      }.bind(this),
+      error: function(xhr, status, err) {
+        console.error(this.props.url, status, err.toString());
+      }.bind(this)
+    });   
+  },
+  componentDidUpdate: function(nextProps, nextState) {
     var $vertexList = $('.vertexList');
     $vertexList.find('.vertex').sort(function (a, b) {
       console.log();
       var aVal = $($(a).find('.vertexPageRank')[0]).text();
       var bVal = $($(b).find('.vertexPageRank')[0]).text();
       return -aVal - -bVal;
-    }).appendTo( $vertexList );    
+    }).appendTo( $vertexList ); 
   },
   render: function() {
     return (
-      <div className="vertex">
-        <h2 className="vertexUrl">
-          {this.props.url}
+      <div className='vertex'>
+        <h2 className='vertexUrl'>
+          {this.state.data['URL']}
         </h2>
-        <span className="vertexPageRank">
-          {this.props.children}
+        <span className='vertexPageRank'>
+          {this.state.data['PageRank']}
         </span>
       </div>
     );
@@ -71,8 +99,7 @@ var Meshwork = React.createClass({
     return {query: '', text: ''};
   },
   onChange: function(e) {
-    var url = 'http://ec2-52-8-87-99.us-west-1.compute.amazonaws.com:3000/search?url='
-    this.setState({query: url+e.target.value, text: e.target.value});
+    this.setState({query: searchUrl+e.target.value, text: e.target.value});
   },
   handleSubmit: function(e) {
     e.preventDefault();
