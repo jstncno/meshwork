@@ -51,6 +51,7 @@ object secondDegreeNeighbors {
             val firstDegreeQualifierName = Bytes.toBytes("FirstDegree")
             getter.addColumn(neighborsFamilyName, firstDegreeQualifierName)
             val results = table.get(getter).value()
+            table.close()
             if (results != null) {
                 var secondDegreeNeighbors = Set[String]()
                 val firstDegreeNeighbors = new String(results).split(",").toSet
