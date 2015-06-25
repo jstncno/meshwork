@@ -93,6 +93,13 @@ object firstDegreeNeighbors {
             val vertexId = md5(vertex._1).toString
             // Row key is md5 hash of URL (vertexId)
             val putter = new Put(Bytes.toBytes(vertexId))
+            // Top 50 1st degree neighbors
+            val top50Neighbors = getTopKNeighbors(vertex, 50)
+            val top50NeighborsFamilyName = Bytes.toBytes("Top50Neighbors")
+            val top50NeighborsQualifierName = Bytes.toBytes("FirstDegree")
+            val top50NeighborsValue = Bytes.toBytes(top50Neighbors._2.take(50).mkString(","))
+            putter.addColumn(top50NeighborsFamilyName, top50NeighborsQualifierName, top50NeighborsValue)
+            // All 1st degree neighbors
             val neighborsFamilyName = Bytes.toBytes("Neighbors")
             val firstDegreeQualifierName = Bytes.toBytes("FirstDegree")
             val firstDegreeValue = Bytes.toBytes(vertex._2.mkString(","))
