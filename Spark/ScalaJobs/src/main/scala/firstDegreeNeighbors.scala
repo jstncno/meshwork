@@ -5,6 +5,7 @@ import org.apache.spark.graphx._
 import org.apache.spark.rdd.RDD
 import scala.util.control.NonFatal
 import scala.sys.process._
+import scala.util.Sorting
 
 import java.security.MessageDigest
 import java.nio.ByteBuffer
@@ -99,12 +100,47 @@ object firstDegreeNeighbors {
             table.close()
         }
 
-        //def putPartitionInHBase(
         Console.print(neighborsByVertexId.mapPartitions{ partitions => 
             for (row <- partitions) {
                 putInHBase(row)
             }
             partitions
         }.count())
+
+        object PageRankOrdering extends Ordering[Long] {
+            def compare(vertexId1:Long, vertexId2:Long) = {
+                val hbaseConf = HBaseConfiguration.create()
+                val tableName = "websites"
+                val table = new HTable(hbaseConf, tableName)
+                val dataFamilyName = Bytes.toBytes("Data")
+                val pageRankQualifierName = Bytes.toBytes("PageRank")
+
+                val getter1 = new Get(Bytes.toBytes(vertexId1))
+                getter1.addColumn(dataFamilyName, pageRankQualifierName)
+                val pageRank1 = table.get(getter1).value()
+
+                val getter2 = new Get(Bytes.toBytes(vertexId2))
+                getter1.addColumn(dataFamilyName, pageRankQualifierName)
+                val pageRank2 = table.get(getter2).value()
+
+                table.close()
+
+                if (pageRank1 == null && pageRank2 == null) {
+                    0 compare 0
+                } else if (pageRank1 != null && pageRank2 == null) {
+                    1 compare 0
+                } else if (pageRank1 == null && pageRank2 != null) {
+                    0 compare 1
+                } else {
+                    new String(pageRank1).toDouble compare new String(pageRank2).toDouble
+                }
+            }
+        }
+
+        // Top K neighbors (by page rank) of vertex
+        def getTopKNeighbors(vertex: (String, Array[Long]), k: Int) = {
+            Sorting.quickSort(vertex._2)(PageRankOrdering)
+            vertex._2.take(k)
+        }
     }
 }
