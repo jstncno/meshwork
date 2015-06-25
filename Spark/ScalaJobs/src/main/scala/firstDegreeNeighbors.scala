@@ -93,12 +93,6 @@ object firstDegreeNeighbors {
             val vertexId = md5(vertex._1).toString
             // Row key is md5 hash of URL (vertexId)
             val putter = new Put(Bytes.toBytes(vertexId))
-            // Top 50 1st degree neighbors
-            val top50Neighbors = getTopKNeighbors(vertex, 50)
-            val top50NeighborsFamilyName = Bytes.toBytes("Top50Neighbors")
-            val top50NeighborsQualifierName = Bytes.toBytes("FirstDegree")
-            val top50NeighborsValue = Bytes.toBytes(top50Neighbors._2.take(50).mkString(","))
-            putter.addColumn(top50NeighborsFamilyName, top50NeighborsQualifierName, top50NeighborsValue)
             // All 1st degree neighbors
             val neighborsFamilyName = Bytes.toBytes("Neighbors")
             val firstDegreeQualifierName = Bytes.toBytes("FirstDegree")
@@ -114,51 +108,5 @@ object firstDegreeNeighbors {
             }
             partitions
         }.count())
-
-        object PageRankOrdering extends Ordering[Long] {
-            def compare(vertexId1:Long, vertexId2:Long) = {
-                val hbaseConf = HBaseConfiguration.create()
-                val tableName = "websites"
-                val table = new HTable(hbaseConf, tableName)
-                val dataFamilyName = Bytes.toBytes("Data")
-                val pageRankQualifierName = Bytes.toBytes("PageRank")
-
-                val getter1 = new Get(Bytes.toBytes(vertexId1))
-                getter1.addColumn(dataFamilyName, pageRankQualifierName)
-                val pageRank1 = table.get(getter1).value()
-
-                val getter2 = new Get(Bytes.toBytes(vertexId2))
-                getter1.addColumn(dataFamilyName, pageRankQualifierName)
-                val pageRank2 = table.get(getter2).value()
-
-                table.close()
-
-                if (pageRank1 == null && pageRank2 == null) {
-                    0 compare 0
-                } else if (pageRank1 != null && pageRank2 == null) {
-                    1 compare 0
-                } else if (pageRank1 == null && pageRank2 != null) {
-                    0 compare 1
-                } else {
-                    new String(pageRank2).toDouble compare new String(pageRank1).toDouble
-                }
-            }
-        }
-
-        // Top K neighbors (by page rank) of vertex
-        def getTopKNeighbors(vertex: (String, Array[Long]), k: Int): (String, Array[Long]) = {
-            Sorting.quickSort(vertex._2)(PageRankOrdering)
-            (vertex._1, vertex._2.take(k))
-        }
-
-        // neighborsByVertexId
-        // RDD[(VertexIds: String, Neighbors: Array[Long])]
-        val top100Neighbors = neighborsByVertexId.mapPartitions{ partitions => 
-            var res = Array[(String, Array[Long])]()
-            for (row <- partitions) {
-                res :+= getTopKNeighbors(row, 100)
-            }
-            res.iterator
-        }
     }
 }
