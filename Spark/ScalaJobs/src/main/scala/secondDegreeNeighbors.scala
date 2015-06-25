@@ -34,10 +34,11 @@ object secondDegreeNeighbors {
             ByteBuffer.wrap(message).getInt
         }
 
+        // RDD[(String, Set[String])]
         val vertices = sc.textFile(vertexIdFiles).map { line =>
             val fields = line.split(" ")
             (fields(0).toLong, fields(1))
-        }.distinct()
+        }.distinct().repartition(80) // 4 x 20 cores
 
         // Find second-degree neighbors of each vertex
         // Neighbers represented as Set[VertexId]
@@ -70,8 +71,13 @@ object secondDegreeNeighbors {
             }
         }
 
-        val neighbors = vertices.map(getSecondDegreeNeighbors)
-        Console.print(neighbors.take(1)(0)._2)
+        val neighbors = vertices.mapPartitions { partitions =>
+            var res = Array[(String, Set[String])]()
+            for (record <- partitions) {
+                res :+= getSecondDegreeNeighbors(record)
+            }
+            res.iterator
+        }
 
         def putInHBase(vertex: (String, Set[String])): Unit = {
             val hbaseConf = HBaseConfiguration.create()
@@ -88,6 +94,11 @@ object secondDegreeNeighbors {
             table.close()
         }
 
-        Console.print(neighbors.map(putInHBase).count())
+        Console.print(neighbors.mapPartitions{ partitions =>
+            for (record <- partitions) {
+                putInHBase(record)
+            }
+            partitions
+        }.count())
     }
 }
