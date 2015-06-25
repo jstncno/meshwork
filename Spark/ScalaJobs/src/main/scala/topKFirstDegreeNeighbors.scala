@@ -80,7 +80,7 @@ object topKFirstDegreeNeighbors {
         }.distinct().repartition(80) // 4 x 20 cores
 
         // Save to HDFS
-        /*"hdfs dfs -rm -r -f /data/first-degree-neighbors" !
+        /*"hdfs dfs -rm -r -f /data/top-"+k.toString+"first-degree-neighbors" !
         neighborsByVertexId.map { record =>
             val neighborsString = record._2.mkString(",")
             record._1+","+neighborsString
