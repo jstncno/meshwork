@@ -64,12 +64,20 @@ var fetchDB = function(req, res, next) {
     });
 }
 
-app.get('/search', getRowKey, fetchDB, function(req, res) {
+var setHeaders = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
     res.header('Access-Control-Allow-Headers', 'Content-Type');
     res.header('Content-Type', 'application/json');
+    next();
+}
+
+app.get('/search', getRowKey, fetchDB, setHeaders, function(req, res) {
     res.send(JSON.stringify(req.data));
+});
+
+app.get('/data', getRowKey, fetchDB, setHeaders, function(req, res) {
+    res.send(JSON.stringify(req.data[0]['Data']));
 });
 
 var server = app.listen(3000, function () {
