@@ -37,7 +37,9 @@ object firstDegreeNeighbors {
         // sendMsg function to send to all edges in graph
         def sendDstIdToSrc(ec:EdgeContext[Int, Int, Array[Long]]): Unit = {
             //ec.sendToSrc(Array(ec.dstId))
-            ec.sendToDst(Array(ec.srcId))
+            if (ec.srcId != ec.dstId) {
+                ec.sendToDst(Array(ec.srcId))
+            }
         }
 
         // function to map src_url to its hash integer
@@ -73,7 +75,7 @@ object firstDegreeNeighbors {
         // Map VertexIds to URL
         val neighborsByVertexId = vertices.join(neighbors).map {
             case (id, (vid, n)) => (vid, n)
-        }.distinct()
+        }.distinct().repartition(80) // 4 x 20 cores
 
         // Save to HDFS
         /*"hdfs dfs -rm -r -f /data/first-degree-neighbors" !
@@ -97,6 +99,12 @@ object firstDegreeNeighbors {
             table.close()
         }
 
-        Console.print(neighborsByVertexId.map(putInHBase).count())
+        //def putPartitionInHBase(
+        Console.print(neighborsByVertexId.mapPartitions{ partitions => 
+            for (row <- partitions) {
+                putInHBase(row)
+            }
+            partitions
+        }.count())
     }
 }
