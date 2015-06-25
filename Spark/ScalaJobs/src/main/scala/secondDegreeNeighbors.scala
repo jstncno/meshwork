@@ -43,8 +43,6 @@ object secondDegreeNeighbors {
         // Neighbers represented as Set[VertexId]
         def getSecondDegreeNeighbors(vertex: (Long, String)): (String, Set[String]) = {
             val hbaseConf = HBaseConfiguration.create()
-            hbaseConf.set("hbase.zookeeper.quorum", "ec2-52-8-87-99.us-west-1.compute.amazonaws.com")
-            hbaseConf.set("hbase.zookeeper.property.clientPort", "2181")
             val tableName = "websites"
             val table = new HTable(hbaseConf, tableName)
             val vertexId = vertex._1.toString
