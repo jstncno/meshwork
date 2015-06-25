@@ -2,7 +2,8 @@ var VertexListContainer = React.createClass({
   getInitialState: function() {
     return {data: []};
   },
-  componentDidMount: function() {
+  componentDidUpdate: function(nextProps, nextState) {
+    console.log(nextProps.url);
     $.ajax({
       url: this.props.url,
       dataType: 'json',
@@ -26,7 +27,6 @@ var VertexListContainer = React.createClass({
 
 var VertexList = React.createClass({
   render: function() {
-    console.log(this.props.data);
     var vertexNodes = this.props.data.map(function (vertex) {
       return (
         <Vertex key={vertex['Data']['PageRank']} url={vertex['Data']['URL']}>
@@ -66,7 +66,31 @@ var Vertex = React.createClass({
   }
 });
 
+var Meshwork = React.createClass({
+  getInitialState: function() {
+    return {query: '', text: ''};
+  },
+  onChange: function(e) {
+    var url = 'http://ec2-52-8-87-99.us-west-1.compute.amazonaws.com:3000/search?url='
+    this.setState({query: url+e.target.value, text: e.target.value});
+  },
+  handleSubmit: function(e) {
+    e.preventDefault();
+  },
+  render: function() {
+    return (
+      <div>
+        <h3>Meshwork</h3>
+        <form onSubmit={this.handleSubmit}>
+          <input onChange={this.onChange} value={this.state.text} />
+        </form>
+        <VertexListContainer url={this.state.query} />
+      </div>
+    );
+  }
+});
+
 React.render(
-  <VertexListContainer url="http://ec2-52-8-87-99.us-west-1.compute.amazonaws.com:3000/search?url=about.me" />,
+  <Meshwork />,
   document.getElementById('content')
 );
