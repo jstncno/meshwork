@@ -112,12 +112,12 @@ object topKFirstDegreeNeighbors {
                 val dataFamilyName = Bytes.toBytes("Data")
                 val pageRankQualifierName = Bytes.toBytes("PageRank")
 
-                val getter1 = new Get(Bytes.toBytes(vertexId1))
+                val getter1 = new Get(Bytes.toBytes(vertexId1.toString))
                 getter1.addColumn(dataFamilyName, pageRankQualifierName)
                 val pageRank1 = table.get(getter1).value()
 
-                val getter2 = new Get(Bytes.toBytes(vertexId2))
-                getter1.addColumn(dataFamilyName, pageRankQualifierName)
+                val getter2 = new Get(Bytes.toBytes(vertexId2.toString))
+                getter2.addColumn(dataFamilyName, pageRankQualifierName)
                 val pageRank2 = table.get(getter2).value()
 
                 table.close()
