@@ -85,7 +85,7 @@ var Vertex = React.createClass({
   },
   componentDidMount: function() {
     $.ajax({
-      url: dataUrl+this.props.vertexId,
+      url: dataById+this.props.vertexId,
       dataType: 'json',
       cache: false,
       success: function(data) {
@@ -110,9 +110,9 @@ var Vertex = React.createClass({
   render: function() {
     return (
       <div className='vertex'>
-        <h2 className='vertexUrl'>
+        <h4 className='vertexUrl'>
           {this.state.data['URL']}
-        </h2>
+        </h4>
         <span className='vertexPageRank'>
           {this.state.data['PageRank']}
         </span>
@@ -123,7 +123,7 @@ var Vertex = React.createClass({
 
 var Meshwork = React.createClass({
   getInitialState: function() {
-    return {query: '', text: ''};
+    return {query: '', text: '', data: {}};
   },
   componentDidMount: function() {
     $('#throbber-loader-container').hide()
@@ -134,10 +134,22 @@ var Meshwork = React.createClass({
   handleSubmit: function(e) {
     e.preventDefault();
     var input = this.state.text;
-    this.setState({query: searchUrl+input});
+    this.setState({query: searchByUrl+input});
     // show spinner
     $('#throbber-loader-container').show()
-    console.log(input);
+
+    $.ajax({
+      url: dataByUrl+input,
+      dataType: 'json',
+      cache: false,
+      success: function(data) {
+        this.setState({data: data});
+      }.bind(this),
+      error: function(xhr, status, err) {
+        console.error(this.props.url, status, err.toString());
+      }.bind(this)
+    }); 
+
     createGraph(input);
   },
   render: function() {
@@ -158,6 +170,8 @@ var Meshwork = React.createClass({
         </div>
         <div className='container'>
           <div id='meshwork-content-container'>
+            <h1>{this.state.data['URL']}</h1>
+            <p>{this.state.data['PageRank']}</p>
             <div id='throbber-loader-container'>
               <div className='throbber-loader'></div>
             </div>

@@ -16,7 +16,7 @@ var createGraph = function(query) {
       .attr('width', width)
       .attr('height', height);
 
-  d3.json(searchUrl+query, function(error, data) {
+  d3.json(searchByUrl+query, function(error, data) {
     if (error) throw error;
 
     var graph = {};
@@ -31,7 +31,7 @@ var createGraph = function(query) {
       var d = {};
       d['id'] = item;
       $.ajax({
-        url: dataUrl+item,
+        url: dataByUrl+item,
         dataType: 'json',
         success:  function(data) {
           d['name'] = data['URL']
