@@ -71,7 +71,7 @@ var Vertex = React.createClass({
       }.bind(this)
     });   
   },
-  componentDidUpdate: function(nextProps, nextState) {
+  /*componentDidUpdate: function(nextProps, nextState) {
     var $vertexList = $('.vertexList');
     $vertexList.find('.vertex').sort(function (a, b) {
       console.log();
@@ -79,7 +79,7 @@ var Vertex = React.createClass({
       var bVal = $($(b).find('.vertexPageRank')[0]).text();
       return -aVal - -bVal;
     }).appendTo( $vertexList ); 
-  },
+  },*/
   render: function() {
     return (
       <div className='vertex'>
