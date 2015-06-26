@@ -30,13 +30,9 @@ var VertexList = React.createClass({
     return {neighbors: [2]};
   },
   shouldComponentUpdate: function(nextProps, nextState) {
-    // return nextProps.id !== this.props.id;
-    // console.log(nextProps.data['Neighbors']['FirstDegree']);
-    // console.log(this.state.neighbors);
     if(nextProps.data) {
         // hide spinner
         $('#throbber-loader-container').hide()
-      // console.log(nextProps.data['Neighbors']['FirstDegree'] !== this.state.neighbors);
       return nextProps.data['Neighbors']['FirstDegree'] !== this.state.neighbors;
     }
     return true;
@@ -98,15 +94,6 @@ var Vertex = React.createClass({
       }.bind(this)
     });   
   },
-  /*componentDidUpdate: function(nextProps, nextState) {
-    var $vertexList = $('.vertexList');
-    $vertexList.find('.vertex').sort(function (a, b) {
-      console.log();
-      var aVal = $($(a).find('.vertexPageRank')[0]).text();
-      var bVal = $($(b).find('.vertexPageRank')[0]).text();
-      return -aVal - -bVal;
-    }).appendTo( $vertexList ); 
-  },*/
   render: function() {
     return (
       <div className='vertex'>
@@ -158,7 +145,7 @@ var Meshwork = React.createClass({
         <div className='jumbotron header'>
           <div className='container'>
             <h1>Meshwork</h1>
-            <h2>Find the connections of a webpage</h2>
+            <h2>Find connections of a webpage</h2>
             <p>Mesh + Network = Meshwork</p>
             <p>Enter a website:</p>
             <div className='input-container'>
