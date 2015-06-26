@@ -1,0 +1,39 @@
+{
+  "name": "react-spinner",
+  "version": "0.2.2",
+  "author": "chenglou <chenglou92@gmail.com>",
+  "description": "Zero configuration loading spinner.",
+  "main": "index.js",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "example",
+    "package.json"
+  ],
+  "keywords": [
+    "facebook",
+    "react",
+    "spin",
+    "spinner",
+    "loading",
+    "react-component"
+  ],
+  "dependencies": {
+    "react": ">=0.12.0"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/chenglou/react-spinner",
+  "_release": "0.2.2",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.2.2",
+    "commit": "8554a04b0ac27507a69db75358cda651188c4e70"
+  },
+  "_source": "git://github.com/chenglou/react-spinner.git",
+  "_target": "~0.2.2",
+  "_originalSource": "react-spinner",
+  "_direct": true
+}
