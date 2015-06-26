@@ -35,6 +35,7 @@ var fetchDB = function(req, res, next) {
         var data = {}
         data['Data'] = {}
         data['Neighbors'] = {}
+        data['Top50Neighbors'] = {}
 
         for (index in record) {
             var value = record[index]['$'].toString();
@@ -54,6 +55,12 @@ var fetchDB = function(req, res, next) {
                     break;
                 case 'Neighbors:SecondDegree':
                     data['Neighbors']['SecondDegree'] = value.split(',');
+                    break;
+                case 'Top50Neighbors:FirstDegree':
+                    data['Top50Neighbors']['FirstDegree'] = value.split(',');
+                    break;
+                case 'Top50Neighbors:SecondDegree':
+                    data['Top50Neighbors']['SecondDegree'] = value.split(',');
                     break;
                 default:
                     break;
