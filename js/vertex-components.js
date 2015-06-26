@@ -1,9 +1,3 @@
-// var searchUrl = 'http://ec2-52-8-87-99.us-west-1.compute.amazonaws.com:3000/search?url=';
-// var dataUrl = 'http://ec2-52-8-87-99.us-west-1.compute.amazonaws.com:3000/data?id=';
-var searchUrl = 'http://ec2-52-8-106-198.us-west-1.compute.amazonaws.com:3000/search?url=';
-var dataUrl = 'http://ec2-52-8-106-198.us-west-1.compute.amazonaws.com:3000/data?id=';
-
-
 var VertexListContainer = React.createClass({
   getInitialState: function() {
     return {data: []};
@@ -139,9 +133,12 @@ var Meshwork = React.createClass({
   },
   handleSubmit: function(e) {
     e.preventDefault();
-    this.setState({query: searchUrl+this.state.text});
+    var input = this.state.text;
+    this.setState({query: searchUrl+input});
     // show spinner
     $('#throbber-loader-container').show()
+    console.log(input);
+    createGraph(input);
   },
   render: function() {
     return (
@@ -153,7 +150,7 @@ var Meshwork = React.createClass({
             <p><a className="btn btn-primary btn-lg" href="#" role="button">Learn more &raquo;</a></p>
             <div className='input-container'>
               <h3>Meshwork</h3>
-              <form onSubmit={this.handleSubmit}>
+              <form onSubmit={this.handleSubmit} id='input-form'>
                 <input onChange={this.onChange} value={this.state.text} />
               </form>
             </div>
@@ -176,3 +173,4 @@ React.render(
   <Meshwork />,
   document.getElementById('content')
 );
+

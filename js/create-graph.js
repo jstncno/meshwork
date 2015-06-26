@@ -1,33 +1,3 @@
-<!DOCTYPE html>
-<meta charset="utf-8">
-<style>
-
-.node {
-  stroke: #fff;
-  stroke-width: 1.5px;
-}
-
-.link {
-  stroke: #999;
-  stroke-opacity: .6;
-}
-
-.center {
-    margin-left: auto;
-    margin-right: auto;
-    width: 70%;
-    background-color: #b0e0e6;
-}
-
-</style>
-<body>
-  <div class='graph center'></div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
-<script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
-<script>
-var searchUrl = 'http://ec2-52-8-87-99.us-west-1.compute.amazonaws.com:3000/search?url=';
-var dataUrl = 'http://ec2-52-8-87-99.us-west-1.compute.amazonaws.com:3000/data?id=';
-
 var createGraph = function(query) {
   var width = 960,
       height = 500;
@@ -39,17 +9,15 @@ var createGraph = function(query) {
       .linkDistance(30)
       .size([width, height]);
 
-  d3.select("svg")
+  d3.select('svg')
        .remove();
 
-  var svg = d3.select(".graph").append("svg")
-      .attr("width", width)
-      .attr("height", height);
+  var svg = d3.select('#graph').append('svg')
+      .attr('width', width)
+      .attr('height', height);
 
   d3.json(searchUrl+query, function(error, data) {
     if (error) throw error;
-
-    console.log(data);
 
     var graph = {};
     var centerNode = [{
@@ -57,7 +25,7 @@ var createGraph = function(query) {
       'name': data[0]['Data']['URL'],
       'rank': data[0]['Data']['PageRank'],
       'group': 1
-    }]
+    }];
     var neighbors = data[0]['Neighbors']['FirstDegree'];
     var neighborNodes = neighbors.slice(0,200).map(function(item, index) {
       var d = {};
@@ -74,7 +42,7 @@ var createGraph = function(query) {
       return d;
     });
     graph.nodes = centerNode.concat(neighborNodes);
-    console.log(graph.nodes)
+
     graph.links = neighborNodes.map(function(item, index) {
       var d = {};
       d['source'] = index+1;
@@ -118,6 +86,3 @@ var createGraph = function(query) {
     });
   });
 }
-
-createGraph('facebook.com');
-</script>

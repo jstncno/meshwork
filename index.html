@@ -3,13 +3,16 @@
   <head>
     <link href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="http://css-spinners.com/css/spinner/throbber.css" type="text/css">
+    <link rel="stylesheet" href="css/graph.css" type="text/css">
     <link rel="stylesheet" href="css/styles.css" type="text/css">
     <script src="bower_components/react/react.js"></script>
     <script src="bower_components/react/JSXTransformer.js"></script>
     <script src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
   </head>
   <body>
 
+      <div id='graph' class='center'></div>
       <div id="content"></div>
 
       <footer>
@@ -17,6 +20,8 @@
       </footer>
     </div> <!-- /container -->
 
+    <script src="js/constants.js"></script>
+    <script src="js/create-graph.js"></script>
     <script type="text/jsx" src="js/vertex-components.js"></script>
   </body>
 </html>
