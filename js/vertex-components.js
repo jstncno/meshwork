@@ -145,15 +145,27 @@ var Meshwork = React.createClass({
   },
   render: function() {
     return (
-      <div>
-        <h3>Meshwork</h3>
-        <form onSubmit={this.handleSubmit}>
-          <input onChange={this.onChange} value={this.state.text} />
-        </form>
-        <div id='throbber-loader-container'>
-          <div className='throbber-loader'></div>
+      <div className='jumbotron'>
+        <div className='container'>
+          <h1>Hello, world!</h1>
+          <p>This is a template for a simple marketing or informational website. It includes a large callout called a jumbotron and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
+          <p><a className="btn btn-primary btn-lg" href="#" role="button">Learn more &raquo;</a></p>
         </div>
-        <VertexListContainer url={this.state.query} />
+
+        <div className='container'>
+          <div id='meshwork-content-container'>
+            <div className='input-container'>
+              <h3>Meshwork</h3>
+              <form onSubmit={this.handleSubmit}>
+                <input onChange={this.onChange} value={this.state.text} />
+              </form>
+            </div>
+            <div id='throbber-loader-container'>
+              <div className='throbber-loader'></div>
+            </div>
+            <VertexListContainer url={this.state.query} />
+          </div>
+        </div>
       </div>
     );
   }
