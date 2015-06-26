@@ -4,7 +4,7 @@ var hbase = require('hbase');
 var md5 = require('MD5');
 
 var dbPort = 10001;
-var hbaseClient = new hbase.Client({ host: '52.8.87.99', port: dbPort });
+var hbaseClient = new hbase.Client({ host: '52.8.106.198', port: dbPort });
 var websitesTable = new hbase.Table(hbaseClient, 'websites');
 
 app.get('/', function (req, res) {
@@ -83,7 +83,7 @@ app.get('/data', getRowKey, fetchDB, setHeaders, function(req, res) {
 var server = app.listen(3000, function () {
 
     //var host = server.address().address;
-    var host = 'ec2-52-8-87-99.us-west-1.compute.amazonaws.com';
+    var host = 'ec2-52-8-106-198.us-west-1.compute.amazonaws.com';
     var port = server.address().port;
 
     console.log('Example app listening at http://%s:%s', host, port);

@@ -20,7 +20,7 @@ object topKFirstDegreeNeighbors {
     def main(args: Array[String]) {
 
         // setup the Spark Context
-        val conf = new SparkConf().setAppName("FindFirstDegreeNeighbors")
+        val conf = new SparkConf().setAppName("FindTopKFirstDegreeNeighbors")
         val sc = new SparkContext(conf)
 
         //val warcFileEdges = "hdfs://ip-172-31-10-101:9000/common-crawl/crawl-data/CC-MAIN-2015-18/segments/1429246633512.41/warc/warc-edges-00000"
