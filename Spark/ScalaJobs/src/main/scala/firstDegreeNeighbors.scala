@@ -93,13 +93,38 @@ object firstDegreeNeighbors {
             val vertexId = md5(vertex._1).toString
             // Row key is md5 hash of URL (vertexId)
             val putter = new Put(Bytes.toBytes(vertexId))
-            // All 1st degree neighbors
+            // All 1st degree neighbors, sorted by decreasing Page Rank
+            val sortedNeighbors = vertex._2.sortWith(sortByDecreasingPageRank)
             val neighborsFamilyName = Bytes.toBytes("Neighbors")
             val firstDegreeQualifierName = Bytes.toBytes("FirstDegree")
-            val firstDegreeValue = Bytes.toBytes(vertex._2.mkString(","))
+            val firstDegreeValue = Bytes.toBytes(sortedNeighbors.mkString(","))
             putter.addColumn(neighborsFamilyName, firstDegreeQualifierName, firstDegreeValue)
             table.put(putter)
             table.close()
+        }
+
+        def sortByDecreasingPageRank(vertexId1:Long, vertexId2:Long):Boolean = {
+            val hbaseConf = HBaseConfiguration.create()
+            val tableName = "websites"
+            val table = new HTable(hbaseConf, tableName)
+            val dataFamilyName = Bytes.toBytes("Data")
+            val pageRankQualifierName = Bytes.toBytes("PageRank")
+
+            val getter1 = new Get(Bytes.toBytes(vertexId1.toString))
+            getter1.addColumn(dataFamilyName, pageRankQualifierName)
+            val pageRank1 = table.get(getter1).value()
+
+            val getter2 = new Get(Bytes.toBytes(vertexId2.toString))
+            getter2.addColumn(dataFamilyName, pageRankQualifierName)
+            val pageRank2 = table.get(getter2).value()
+
+            table.close()
+            if (pageRank1 == null) {
+                return false
+            } else if (pageRank2 == null) {
+                return true
+            }
+            return new String(pageRank1).toDouble > new String(pageRank2).toDouble
         }
 
         Console.print(neighborsByVertexId.mapPartitions{ partitions => 
