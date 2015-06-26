@@ -1,3 +1,8 @@
+.header {
+    background-color: #16A085;
+    color: white;
+}
+
 #meshwork-content-container {
     padding: 30px;
 }
@@ -7,7 +12,7 @@
 }
 
 .input-container {
-    text-align: center;
+    color: black;
 }
 
 .vertex {
