@@ -1,0 +1,16 @@
+#meshwork-content-container {
+    padding: 30px;
+}
+
+#throbber-loader-container {
+    padding: 10px 0;
+}
+
+.input-container {
+    text-align: center;
+}
+
+.vertex {
+    border-bottom: solid #ededed 1px;
+    padding-bottom: 15px;
+}
