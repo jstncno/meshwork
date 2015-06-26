@@ -14,6 +14,8 @@ var VertexListContainer = React.createClass({
         this.setState({data: data});
       }.bind(this),
       error: function(xhr, status, err) {
+        this.setState({data: []});
+        $('#throbber-loader-container').hide();
         console.error(this.props.url, status, err.toString());
       }.bind(this)
     });
@@ -34,8 +36,8 @@ var VertexList = React.createClass({
   componentWillReceiveProps: function(nextProps) {
     var n = nextProps.data;
     if(n != undefined) {
-      console.log(n['Neighbors']['FirstDegree'].length + ' neighbors');
-      this.setState({neighbors: n['Neighbors']['FirstDegree']});
+      // console.log(n['Neighbors']['FirstDegree'].length + ' neighbors');
+      this.setState({neighbors: n['Neighbors']['FirstDegree'].slice(0,100)});
     }
   },
   render: function() {
@@ -65,6 +67,8 @@ var Vertex = React.createClass({
       cache: false,
       success: function(data) {
         this.setState({data: data});
+        // hide spinner
+        $('#throbber-loader-container').hide()
       }.bind(this),
       error: function(xhr, status, err) {
         console.error(this.props.url, status, err.toString());
@@ -98,13 +102,17 @@ var Meshwork = React.createClass({
   getInitialState: function() {
     return {query: '', text: ''};
   },
+  componentDidMount: function() {
+    $('#throbber-loader-container').hide()
+  },
   onChange: function(e) {
     this.setState({text: e.target.value});
   },
   handleSubmit: function(e) {
     e.preventDefault();
-    console.log(this.state.text);
     this.setState({query: searchUrl+this.state.text});
+    // show spinner
+    $('#throbber-loader-container').show()
   },
   render: function() {
     return (
@@ -113,6 +121,9 @@ var Meshwork = React.createClass({
         <form onSubmit={this.handleSubmit}>
           <input onChange={this.onChange} value={this.state.text} />
         </form>
+        <div id='throbber-loader-container'>
+          <div className='throbber-loader'></div>
+        </div>
         <VertexListContainer url={this.state.query} />
       </div>
     );
