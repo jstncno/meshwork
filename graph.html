@@ -15,7 +15,10 @@
 </style>
 <body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+<script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
 <script>
+var searchUrl = 'http://ec2-52-8-87-99.us-west-1.compute.amazonaws.com:3000/search?';
+var dataUrl = 'http://ec2-52-8-87-99.us-west-1.compute.amazonaws.com:3000/data?';
 
 var width = 960,
     height = 500;
@@ -31,10 +34,11 @@ var svg = d3.select("body").append("svg")
     .attr("width", width)
     .attr("height", height);
 
-d3.json("http://ec2-52-8-87-99.us-west-1.compute.amazonaws.com:3000/search?url=facebook.com", function(error, data) {
+d3.json(searchUrl+'url=google.com', function(error, data) {
   if (error) throw error;
 
   console.log(data);
+  $.ajax()
 
   var graph = {};
   var centerNode = [{
@@ -47,14 +51,20 @@ d3.json("http://ec2-52-8-87-99.us-west-1.compute.amazonaws.com:3000/search?url=f
   var neighborNodes = neighbors.slice(0,100).map(function(item, index) {
     var d = {};
     d['id'] = item;
-    d['name'] = item;
-    // d['rank'] = item['PageRank'];
-    d['group'] = 2;
+    $.ajax({
+      url:      dataUrl+'id='+item,
+      dataType: 'json',
+      success:  function(data) {
+        d['name'] = data['URL']
+        d['rank'] = data['PageRank'];
+      }
+    });
+    d['group'] = Math.floor((Math.random() * 10) + 1);
     return d;
   });
   graph.nodes = centerNode.concat(neighborNodes);
   console.log(graph.nodes)
-  var links = neighborNodes.map(function(item, index) {
+  graph.links = neighborNodes.map(function(item, index) {
     var d = {};
     d['source'] = index+1;
     d['target'] = 0;
@@ -62,9 +72,7 @@ d3.json("http://ec2-52-8-87-99.us-west-1.compute.amazonaws.com:3000/search?url=f
     return d;
   });
 
-  // clean(links, undefined);
-  graph.links = links;
-  console.log(graph.links);
+  // console.log(graph.links);
 
   force
       .nodes(graph.nodes)
