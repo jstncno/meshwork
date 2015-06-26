@@ -1,5 +1,8 @@
-var searchUrl = 'http://ec2-52-8-87-99.us-west-1.compute.amazonaws.com:3000/search?url=';
-var dataUrl = 'http://ec2-52-8-87-99.us-west-1.compute.amazonaws.com:3000/data?id=';
+// var searchUrl = 'http://ec2-52-8-87-99.us-west-1.compute.amazonaws.com:3000/search?url=';
+// var dataUrl = 'http://ec2-52-8-87-99.us-west-1.compute.amazonaws.com:3000/data?id=';
+var searchUrl = 'http://ec2-52-8-106-198.us-west-1.compute.amazonaws.com:3000/search?url=';
+var dataUrl = 'http://ec2-52-8-106-198.us-west-1.compute.amazonaws.com:3000/data?id=';
+
 
 var VertexListContainer = React.createClass({
   getInitialState: function() {
@@ -14,7 +17,6 @@ var VertexListContainer = React.createClass({
         this.setState({data: data});
       }.bind(this),
       error: function(xhr, status, err) {
-        this.setState({data: []});
         $('#throbber-loader-container').hide();
         console.error(this.props.url, status, err.toString());
       }.bind(this)
@@ -31,17 +33,44 @@ var VertexListContainer = React.createClass({
 
 var VertexList = React.createClass({
   getInitialState: function() {
-    return {neighbors: []};
+    return {neighbors: [2]};
+  },
+  shouldComponentUpdate: function(nextProps, nextState) {
+    // return nextProps.id !== this.props.id;
+    // console.log(nextProps.data['Neighbors']['FirstDegree']);
+    // console.log(this.state.neighbors);
+    if(nextProps.data) {
+        // hide spinner
+        $('#throbber-loader-container').hide()
+      // console.log(nextProps.data['Neighbors']['FirstDegree'] !== this.state.neighbors);
+      return nextProps.data['Neighbors']['FirstDegree'] !== this.state.neighbors;
+    }
+    return true;
   },
   componentWillReceiveProps: function(nextProps) {
     var n = nextProps.data;
     if(n != undefined) {
-      // console.log(n['Neighbors']['FirstDegree'].length + ' neighbors');
-      this.setState({neighbors: n['Neighbors']['FirstDegree'].slice(0,100)});
+      if(n['Neighbors']['FirstDegree']) {
+        // console.log(n['Neighbors']['FirstDegree'].length + ' neighbors');
+        var neighbors = n['Neighbors']['FirstDegree'];
+        if(neighbors) this.setState({neighbors: neighbors.slice(0,100)});
+        // else this.setState({neighbors: [0]});
+      } else this.setState({neighbors: [0]});
+    }
+  },
+  componentDidUpdate: function(nextProps, nextState) {
+    if(this.state.neighbors.length == 0) {
+        // hide spinner
+        $('#throbber-loader-container').hide()
     }
   },
   render: function() {
     var vertexNodes = this.state.neighbors.map(function (vertex) {
+      if(vertex===0) {
+        return (
+          <h2 className='notFound'>No neighbors found :(</h2>
+        );
+      }
       return (
         <Vertex key={vertex} vertexId={vertex}>
             {vertex}

@@ -34,7 +34,7 @@ var svg = d3.select("body").append("svg")
     .attr("width", width)
     .attr("height", height);
 
-d3.json(searchUrl+'url=google.com', function(error, data) {
+d3.json(searchUrl+'url=facebook.com', function(error, data) {
   if (error) throw error;
 
   console.log(data);
@@ -47,7 +47,7 @@ d3.json(searchUrl+'url=google.com', function(error, data) {
     'group': 1
   }]
   var neighbors = data[0]['Neighbors']['FirstDegree'];
-  var neighborNodes = neighbors.slice(0,100).map(function(item, index) {
+  var neighborNodes = neighbors.slice(0,200).map(function(item, index) {
     var d = {};
     d['id'] = item;
     $.ajax({
