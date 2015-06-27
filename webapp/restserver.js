@@ -56,12 +56,6 @@ var fetchDB = function(req, res, next) {
                 case 'Neighbors:SecondDegree':
                     data['Neighbors']['SecondDegree'] = value.split(',');
                     break;
-                case 'Top50Neighbors:FirstDegree':
-                    data['Top50Neighbors']['FirstDegree'] = value.split(',');
-                    break;
-                case 'Top50Neighbors:SecondDegree':
-                    data['Top50Neighbors']['SecondDegree'] = value.split(',');
-                    break;
                 default:
                     break;
             }
