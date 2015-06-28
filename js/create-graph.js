@@ -6,7 +6,11 @@ var createGraph = function(query) {
 
   var force = d3.layout.force()
       .charge(-120)
-      .linkDistance(30)
+      .linkDistance(function(link, index) {
+        console.log(link);
+        console.log((1/link['value'])*1500);
+        return (1/link['value'])*1500;
+      })
       .size([width, height]);
 
   d3.select('svg')
@@ -27,18 +31,19 @@ var createGraph = function(query) {
       'group': 1
     }];
     var neighbors = data[0]['Neighbors']['FirstDegree'];
-    var neighborNodes = neighbors.slice(0,200).map(function(item, index) {
+    var neighborNodes = neighbors.slice(0,100).map(function(item, index) {
       var d = {};
-      d['id'] = item;
       $.ajax({
-        url: dataByUrl+item,
+        url: dataById+item,
         dataType: 'json',
         success:  function(data) {
-          d['name'] = data['URL']
+      d['id'] = item;
+      d['group'] = Math.floor((Math.random() * 10) + 1)+1;
+          d['name'] = data['URL'];
           d['rank'] = data['PageRank'];
-        }
+        },
+        async: false
       });
-      d['group'] = Math.floor((Math.random() * 10) + 1);
       return d;
     });
     graph.nodes = centerNode.concat(neighborNodes);
@@ -47,7 +52,7 @@ var createGraph = function(query) {
       var d = {};
       d['source'] = index+1;
       d['target'] = 0;
-      d['value'] = 1;
+      d['value'] = item['rank'];
       return d;
     });
 
@@ -68,9 +73,11 @@ var createGraph = function(query) {
         .data(graph.nodes)
       .enter().append("circle")
         .attr("class", "node")
-        .attr("r", 5)
+        .attr("r", 10)
         .style("fill", function(d) { return color(d.group); })
         .call(force.drag);
+
+    var center = svg.select(".node").attr("r", 20);
 
     node.append("title")
         .text(function(d) { return d.name; });
