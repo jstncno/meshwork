@@ -15,6 +15,7 @@ var Meshwork = React.createClass({
     // show spinner
     $('#throbber-loader-container').show();
 
+    // Display input URL and PageRank
     $.ajax({
       url: dataByUrl+input,
       dataType: 'json',
