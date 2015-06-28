@@ -44,7 +44,7 @@ var Meshwork = React.createClass({
               <form onSubmit={this.handleSubmit} id='input-form'>
                 <input onChange={this.onChange} value={this.state.text} />
                 <input type="button" value="Search" onClick={this.handleSubmit} />
-                <input type="button" value="Create Graph" onClick={this.handleCreateGraph} />
+                <input type="button" value="Create Mesh" onClick={this.handleCreateGraph} />
               </form>
             </div>
           </div>
