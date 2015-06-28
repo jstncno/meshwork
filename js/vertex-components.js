@@ -27,8 +27,9 @@ var Meshwork = React.createClass({
         console.error(this.props.url, status, err.toString());
       }.bind(this)
     });
-
-    createGraph(input);
+  },
+  handleCreateGraph: function() {
+    createGraph(this.state.text);
   },
   render: function() {
     return (
@@ -42,6 +43,8 @@ var Meshwork = React.createClass({
             <div className='input-container'>
               <form onSubmit={this.handleSubmit} id='input-form'>
                 <input onChange={this.onChange} value={this.state.text} />
+                <input type="button" value="Search" onClick={this.handleSubmit} />
+                <input type="button" value="Create Graph" onClick={this.handleCreateGraph} />
               </form>
             </div>
           </div>
