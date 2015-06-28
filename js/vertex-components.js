@@ -1,3 +1,65 @@
+var Meshwork = React.createClass({
+  getInitialState: function() {
+    return {query: '', text: '', data: {}};
+  },
+  componentDidMount: function() {
+    $('#throbber-loader-container').hide();
+  },
+  onChange: function(e) {
+    this.setState({text: e.target.value});
+  },
+  handleSubmit: function(e) {
+    e.preventDefault();
+    var input = this.state.text;
+    this.setState({query: searchByUrl+input});
+    // show spinner
+    $('#throbber-loader-container').show();
+
+    $.ajax({
+      url: dataByUrl+input,
+      dataType: 'json',
+      cache: false,
+      success: function(data) {
+        this.setState({data: data});
+      }.bind(this),
+      error: function(xhr, status, err) {
+        console.error(this.props.url, status, err.toString());
+      }.bind(this)
+    });
+
+    createGraph(input);
+  },
+  render: function() {
+    return (
+      <div>
+        <div className='jumbotron header'>
+          <div className='container'>
+            <h1>Meshwork</h1>
+            <h2>Find connections of a webpage</h2>
+            <p>Mesh + Network = Meshwork</p>
+            <p>Enter a website:</p>
+            <div className='input-container'>
+              <form onSubmit={this.handleSubmit} id='input-form'>
+                <input onChange={this.onChange} value={this.state.text} />
+              </form>
+            </div>
+          </div>
+        </div>
+        <div className='container'>
+          <div id='meshwork-content-container'>
+            <h1>{this.state.data['URL']}</h1>
+            <p>{this.state.data['PageRank']}</p>
+            <div id='throbber-loader-container'>
+              <div className='throbber-loader'></div>
+            </div>
+            <VertexListContainer url={this.state.query} />
+          </div>
+        </div>
+      </div>
+    );
+  }
+});
+
 var VertexListContainer = React.createClass({
   getInitialState: function() {
     return {data: []};
@@ -103,68 +165,6 @@ var Vertex = React.createClass({
         <span className='vertexPageRank'>
           {this.state.data['PageRank']}
         </span>
-      </div>
-    );
-  }
-});
-
-var Meshwork = React.createClass({
-  getInitialState: function() {
-    return {query: '', text: '', data: {}};
-  },
-  componentDidMount: function() {
-    $('#throbber-loader-container').hide()
-  },
-  onChange: function(e) {
-    this.setState({text: e.target.value});
-  },
-  handleSubmit: function(e) {
-    e.preventDefault();
-    var input = this.state.text;
-    this.setState({query: searchByUrl+input});
-    // show spinner
-    $('#throbber-loader-container').show()
-
-    $.ajax({
-      url: dataByUrl+input,
-      dataType: 'json',
-      cache: false,
-      success: function(data) {
-        this.setState({data: data});
-      }.bind(this),
-      error: function(xhr, status, err) {
-        console.error(this.props.url, status, err.toString());
-      }.bind(this)
-    }); 
-
-    createGraph(input);
-  },
-  render: function() {
-    return (
-      <div>
-        <div className='jumbotron header'>
-          <div className='container'>
-            <h1>Meshwork</h1>
-            <h2>Find connections of a webpage</h2>
-            <p>Mesh + Network = Meshwork</p>
-            <p>Enter a website:</p>
-            <div className='input-container'>
-              <form onSubmit={this.handleSubmit} id='input-form'>
-                <input onChange={this.onChange} value={this.state.text} />
-              </form>
-            </div>
-          </div>
-        </div>
-        <div className='container'>
-          <div id='meshwork-content-container'>
-            <h1>{this.state.data['URL']}</h1>
-            <p>{this.state.data['PageRank']}</p>
-            <div id='throbber-loader-container'>
-              <div className='throbber-loader'></div>
-            </div>
-            <VertexListContainer url={this.state.query} />
-          </div>
-        </div>
       </div>
     );
   }
