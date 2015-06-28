@@ -154,7 +154,7 @@ var Vertex = React.createClass({
       error: function(xhr, status, err) {
         console.error(this.props.url, status, err.toString());
       }.bind(this)
-    });   
+    });
   },
   render: function() {
     return (
