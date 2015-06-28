@@ -7,8 +7,6 @@ var createGraph = function(query) {
   var force = d3.layout.force()
       .charge(-120)
       .linkDistance(function(link, index) {
-        console.log(link);
-        console.log((1/link['value'])*1500);
         return (1/link['value'])*1500;
       })
       .size([width, height]);
@@ -73,11 +71,11 @@ var createGraph = function(query) {
         .data(graph.nodes)
       .enter().append("circle")
         .attr("class", "node")
-        .attr("r", 10)
+        .attr("r", 7)
         .style("fill", function(d) { return color(d.group); })
         .call(force.drag);
 
-    var center = svg.select(".node").attr("r", 20);
+    var center = svg.select(".node").attr("r", 15);
 
     node.append("title")
         .text(function(d) { return d.name; });
