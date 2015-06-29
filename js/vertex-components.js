@@ -32,9 +32,12 @@ var Meshwork = React.createClass({
     createGraph(this.state.text);
   },
   render: function() {
+    var jumbotronStyle = {
+      borderRadius: '0px'
+    };
     return (
       <div>
-        <div className='jumbotron header'>
+        <div className='jumbotron header' style={jumbotronStyle}>
           <div className='container'>
             <h1>Meshwork</h1>
             <h2>Find connections of a webpage</h2>

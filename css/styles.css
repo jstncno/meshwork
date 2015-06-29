@@ -3,6 +3,15 @@
     color: white;
 }
 
+.sidebar {
+    background-color: #16A085;
+    border: none;
+}
+
+.sidebar > ul > li > a {
+    color: white;
+}
+
 #meshwork-content-container {
     padding: 30px;
 }
@@ -19,3 +28,4 @@
     border-bottom: solid #ededed 1px;
     padding-bottom: 15px;
 }
+
