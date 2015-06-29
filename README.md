@@ -26,4 +26,4 @@ A screencast is available on the **Screencast** section of the above website, in
 ## The Data
 The data comes from [Common Crawl](http://commoncrawl.org)'s April 2015 web corpus. The corpus is ~168TB, but for this project, a subset of this data was processed, roughly ~445GB.
 
-![warcfile](github/warc-file.png)
+![warc-file](github/images/warc-file.png)
