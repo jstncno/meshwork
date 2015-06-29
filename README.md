@@ -46,3 +46,6 @@ The files are available in Common Crawl's public AWS S3 bucket as gzipped WARC f
 The WARC files were processed through a traditional ETL process, but in a distributed manner. Each worker node was responsible for downloading a gzipped WARC file and extracting the source and destination links. The links were then saved to local [HDFS](http://hadoop.apache.org), transformed to [Spark](https://spark.apache.org) [RDD](https://www.cs.berkeley.edu/~matei/papers/2012/nsdi_spark.pdf)'s, and loaded into [Spark GraphX](https://spark.apache.org/graphx/) for processing.
 
 The results from the batch processing are stored into [HBase](https://hbase.apache.org) and served through [Node.js](https://nodejs.org) as a REST API.
+
+## Presentation Deck
+Slides are available on [Slideshare](http://www.slideshare.net/JustinCano/meshwork-insight-data-engineering).
