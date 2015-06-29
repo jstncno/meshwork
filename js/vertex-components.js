@@ -44,7 +44,6 @@ var Meshwork = React.createClass({
               <form onSubmit={this.handleSubmit} id='input-form'>
                 <input onChange={this.onChange} value={this.state.text} />
                 <input type="button" value="Search" onClick={this.handleSubmit} />
-                <input type="button" value="Create Mesh" onClick={this.handleCreateGraph} />
               </form>
             </div>
           </div>
@@ -57,6 +56,60 @@ var Meshwork = React.createClass({
               <div className='throbber-loader'></div>
             </div>
             <VertexListContainer url={this.state.query} />
+          </div>
+        </div>
+      </div>
+    );
+  }
+});
+
+var MeshGraph = React.createClass({
+  getInitialState: function() {
+    return {query: '', text: '', data: {}};
+  },
+  componentDidMount: function() {
+  },
+  onChange: function(e) {
+    this.setState({text: e.target.value});
+  },
+  handleSubmit: function(e) {
+    e.preventDefault();
+    var input = this.state.text;
+    this.setState({query: searchByUrl+input});
+
+    // Display input URL and PageRank
+    $.ajax({
+      url: dataByUrl+input,
+      dataType: 'json',
+      cache: false,
+      success: function(data) {
+        this.setState({data: data});
+      }.bind(this),
+      error: function(xhr, status, err) {
+        console.error(this.props.url, status, err.toString());
+      }.bind(this)
+    });
+
+    this.handleCreateGraph();
+  },
+  handleCreateGraph: function() {
+    createGraph(this.state.text);
+  },
+  render: function() {
+    return (
+      <div>
+        <div className='jumbotron header'>
+          <div className='container'>
+            <h1>Meshwork</h1>
+            <h2>Find connections of a webpage</h2>
+            <p>Mesh + Network = Meshwork</p>
+            <p>Enter a website:</p>
+            <div className='input-container'>
+              <form onSubmit={this.handleSubmit} id='input-form'>
+                <input onChange={this.onChange} value={this.state.text} />
+                <input type="button" value="Create Mesh" onClick={this.handleCreateGraph} />
+              </form>
+            </div>
           </div>
         </div>
       </div>
@@ -176,6 +229,10 @@ var Vertex = React.createClass({
 
 React.render(
   <Meshwork />,
-  document.getElementById('content')
+  document.getElementById('neighbors-content')
 );
 
+React.render(
+  <MeshGraph />,
+  document.getElementById('graph-content')
+);

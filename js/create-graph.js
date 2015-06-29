@@ -1,6 +1,6 @@
 var createGraph = function(query) {
-  var width = 960,
-      height = 500;
+  var width = 1200,
+      height = 625;
 
   var color = d3.scale.category20();
 
