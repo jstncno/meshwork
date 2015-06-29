@@ -9,6 +9,7 @@ If you own a website, then you own a piece of the vast internet web graph. When 
 
 Google's 1<sup>st</sup> degree "mesh" graph
 ![google-mesh](github/images/meshgraph.png)
+
 *The center node is [google.com](http://www.google.com). Surrounding it are its 1<sup>st</sup> degree neighbors. The closer the neighbors are to the center node, the higher the neighbor's Page Rank.*
 
 ## Motivation
