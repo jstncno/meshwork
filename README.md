@@ -13,7 +13,7 @@ Google's 1<sup>st</sup> degree "mesh" graph
 *The center node is [google.com](http://www.google.com). Surrounding it are its 1<sup>st</sup> degree neighbors. The closer the neighbors are to the center node, the higher the neighbor's Page Rank.*
 
 ## Motivation
-The main purpose of the project was to gain experience in processing large amounts of data - the **volume** in the three V's (volume, velocity, variety).
+The main purpose of the project was to gain experience in processing large amounts of data - the *volume* in the three V's (volume, velocity, variety).
 The end product might be interesting for SEO analysis, to see which are the most credible websites that are affecting your own website's Page Rank.
 
 ## Intro
