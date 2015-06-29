@@ -34,7 +34,7 @@ object secondDegreeNeighbors {
             ByteBuffer.wrap(message).getInt
         }
 
-        // RDD[(String, Set[String])]
+        // RDD[(VertexId:Long, URL:String)]
         val vertices = sc.textFile(vertexIdFiles).map { line =>
             val fields = line.split(" ")
             (fields(0).toLong, fields(1))
@@ -52,12 +52,11 @@ object secondDegreeNeighbors {
             val firstDegreeQualifierName = Bytes.toBytes("FirstDegree")
             getter.addColumn(neighborsFamilyName, firstDegreeQualifierName)
             val results = table.get(getter).value()
-            table.close()
             if (results != null) {
                 var secondDegreeNeighbors = Set[String]()
                 val firstDegreeNeighbors = new String(results).split(",").toSet
                 for (neighbor <- firstDegreeNeighbors) {
-                    // neighbor is a vertexId
+                    // neighbor is a first degree neighbor vertexId
                     val neighborGetter = new Get(Bytes.toBytes(neighbor))
                     neighborGetter.addColumn(neighborsFamilyName, firstDegreeQualifierName)
                     val r = table.get(neighborGetter).value()
@@ -65,12 +64,17 @@ object secondDegreeNeighbors {
                         secondDegreeNeighbors ++= new String(r).split(",").toSet
                     }
                 }
+            	table.close()
+                // Take set difference to remove firstDegreeNeighbors from secondDegreeNeighbors
+                secondDegreeNeighbors = secondDegreeNeighbors &~ firstDegreeNeighbors
                 (vertex._2, secondDegreeNeighbors)
             } else {
+            	table.close()
                 (vertex._2, Set[String]())
             }
         }
 
+        // RDD[(URL:String, SeconDegreeNeighbors:Set[String])]
         val neighbors = vertices.mapPartitions { partitions =>
             var res = Array[(String, Set[String])]()
             for (record <- partitions) {
@@ -86,12 +90,38 @@ object secondDegreeNeighbors {
             val vertexId = md5(vertex._1).toString
             // Row key is md5 hash of URL (vertexId)
             val putter = new Put(Bytes.toBytes(vertexId))
+            // All 2nd degree neighbors, sorted by decreasing Page Rank
+            val sortedNeighbors = vertex._2.toArray.sortWith(sortByDecreasingPageRank)
             val neighborsFamilyName = Bytes.toBytes("Neighbors")
             val secondDegreeQualifierName = Bytes.toBytes("SecondDegree")
-            val secondDegreeValue = Bytes.toBytes(vertex._2.mkString(","))
+            val secondDegreeValue = Bytes.toBytes(sortedNeighbors.mkString(","))
             putter.addColumn(neighborsFamilyName, secondDegreeQualifierName, secondDegreeValue)
             table.put(putter)
             table.close()
+        }
+
+        def sortByDecreasingPageRank(vertexId1:String, vertexId2:String):Boolean = {
+            val hbaseConf = HBaseConfiguration.create()
+            val tableName = "websites"
+            val table = new HTable(hbaseConf, tableName)
+            val dataFamilyName = Bytes.toBytes("Data")
+            val pageRankQualifierName = Bytes.toBytes("PageRank")
+
+            val getter1 = new Get(Bytes.toBytes(vertexId1))
+            getter1.addColumn(dataFamilyName, pageRankQualifierName)
+            val pageRank1 = table.get(getter1).value()
+
+            val getter2 = new Get(Bytes.toBytes(vertexId2))
+            getter2.addColumn(dataFamilyName, pageRankQualifierName)
+            val pageRank2 = table.get(getter2).value()
+
+            table.close()
+            if (pageRank1 == null) {
+                return false
+            } else if (pageRank2 == null) {
+                return true
+            }
+            return new String(pageRank1).toDouble > new String(pageRank2).toDouble
         }
 
         Console.print(neighbors.mapPartitions{ partitions =>
