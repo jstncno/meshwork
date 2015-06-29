@@ -37,7 +37,7 @@ var Meshwork = React.createClass({
   render: function() {
     return (
       <div>
-        <div className='jumbotron pulsate-bg' style={jumbotronStyle}>
+        <div className='jumbotron header' style={jumbotronStyle}>
           <div className='container'>
             <h1>Meshwork</h1>
             <h2>Find connections of a webpage</h2>
@@ -101,7 +101,7 @@ var MeshGraph = React.createClass({
   render: function() {
     return (
       <div>
-        <div className='jumbotron pulsate-bg' style={jumbotronStyle}>
+        <div className='jumbotron header' style={jumbotronStyle}>
           <div className='container'>
             <h1>Meshwork</h1>
             <h2>Find connections of a webpage</h2>
