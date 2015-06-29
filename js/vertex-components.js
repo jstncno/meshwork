@@ -1,3 +1,6 @@
+var jumbotronStyle = {
+  borderRadius: '0px'
+};
 var Meshwork = React.createClass({
   getInitialState: function() {
     return {query: '', text: '', data: {}};
@@ -32,9 +35,6 @@ var Meshwork = React.createClass({
     createGraph(this.state.text);
   },
   render: function() {
-    var jumbotronStyle = {
-      borderRadius: '0px'
-    };
     return (
       <div>
         <div className='jumbotron header' style={jumbotronStyle}>
@@ -101,7 +101,7 @@ var MeshGraph = React.createClass({
   render: function() {
     return (
       <div>
-        <div className='jumbotron header'>
+        <div className='jumbotron header' style={jumbotronStyle}>
           <div className='container'>
             <h1>Meshwork</h1>
             <h2>Find connections of a webpage</h2>

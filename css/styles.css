@@ -12,6 +12,10 @@
     color: white;
 }
 
+/*.sidebar > ul > li.active > a {
+    background-color: #2C3E50;
+}*/
+
 #meshwork-content-container {
     padding: 30px;
 }
