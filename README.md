@@ -48,4 +48,4 @@ The WARC files were processed through a traditional ETL process, but in a distri
 The results from the batch processing are stored into [HBase](https://hbase.apache.org) and served through [Node.js](https://nodejs.org) as a REST API.
 
 ## Presentation Deck
-Slides are available on [Slideshare](http://www.slideshare.net/JustinCano/meshwork-insight-data-engineering).
+Slides are available on [Slideshare](http://www.slideshare.net/JustinCano1/justin-cano-demo).
