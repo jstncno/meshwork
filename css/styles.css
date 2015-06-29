@@ -1,10 +1,19 @@
+footer a {
+    color: black;
+    text-decoration: underline;
+}
+
+small {
+    color: #8F8A8C;
+}
+
 .header {
     background-color: #16A085;
     color: white;
 }
 
 .sidebar {
-    background-color: #16A085;
+    background-color: #34495E;
     border: none;
 }
 
