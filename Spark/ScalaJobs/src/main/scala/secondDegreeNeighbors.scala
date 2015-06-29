@@ -34,7 +34,7 @@ object secondDegreeNeighbors {
             ByteBuffer.wrap(message).getInt
         }
 
-        // RDD[(String, Set[String])]
+        // RDD[(VertexId:Long, URL:String)]
         val vertices = sc.textFile(vertexIdFiles).map { line =>
             val fields = line.split(" ")
             (fields(0).toLong, fields(1))
@@ -52,12 +52,11 @@ object secondDegreeNeighbors {
             val firstDegreeQualifierName = Bytes.toBytes("FirstDegree")
             getter.addColumn(neighborsFamilyName, firstDegreeQualifierName)
             val results = table.get(getter).value()
-            table.close()
             if (results != null) {
                 var secondDegreeNeighbors = Set[String]()
                 val firstDegreeNeighbors = new String(results).split(",").toSet
                 for (neighbor <- firstDegreeNeighbors) {
-                    // neighbor is a vertexId
+                    // neighbor is a first degree neighbor vertexId
                     val neighborGetter = new Get(Bytes.toBytes(neighbor))
                     neighborGetter.addColumn(neighborsFamilyName, firstDegreeQualifierName)
                     val r = table.get(neighborGetter).value()
@@ -65,12 +64,17 @@ object secondDegreeNeighbors {
                         secondDegreeNeighbors ++= new String(r).split(",").toSet
                     }
                 }
+            	table.close()
+                // Take set difference to remove firstDegreeNeighbors from secondDegreeNeighbors
+                secondDegreeNeighbors = secondDegreeNeighbors &~ firstDegreeNeighbors
                 (vertex._2, secondDegreeNeighbors)
             } else {
+            	table.close()
                 (vertex._2, Set[String]())
             }
         }
 
+        // RDD[(URL:String, SeconDegreeNeighbors:Set[String])]
         val neighbors = vertices.mapPartitions { partitions =>
             var res = Array[(String, Set[String])]()
             for (record <- partitions) {
