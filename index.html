@@ -12,6 +12,7 @@
   <script src='bower_components/react/JSXTransformer.js'></script>
   <script src='bower_components/jquery/dist/jquery.min.js'></script>
   <script src='bower_components/bootstrap/dist/js/bootstrap.min.js'></script>
+  <script src='bower_components/to-markdown/dist/to-markdown.js'></script>
   <script src='https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js'></script>
 </head>
 <body>
@@ -87,7 +88,120 @@
             </div>
 
             <div id='api-section' class='api-container tab-pane' role='tabpanel'>
-              <div id='api-content'></div>
+              <div id='api-content'>
+                <div class='container'>
+                  <div class='row'>
+                    <div class='col-md-8 col-md-offset-1'>
+                      <h1>REST API</h1>
+                      <p>
+                        This REST API provides programmatic access to the information gathered and processed by <strong>Meshwork</strong>. All responses are available in JSON.
+                      </p>
+                      <h1>Endpoints</h1>
+                      <h2>Resource URL</h2>
+                      <p>
+                        <code>http://ec2-52-8-226-123.us-west-1.compute.amazonaws.com:3000</code>
+                      </p>
+                      <p>
+                        There are currently only two endpoints: <a href='#rest-search'>/search</a> and <a href='#rest-data'>/data</a>.
+                      </p>
+                      <h2 id='rest-search'>GET /search</h2>
+                      <p>
+                        Returns a single-element JSON list that contains information about the search query. A response object contains two keys, <code>Data</code> and <code>Neighbors</code>. The <code>Data</code> object contains three keys, <code>PageRank</code>, <code>URL</code>, and <code>VertexId</code>. The <code>Neighbors</code> object contains two keys, <code>FirstDegree</code> and <code>SecondDegree</code>. These neighbors are returned as a list of VertexIds, sorted by order of descending Page Rank. If you want to query only the top K neighbors, it is as simple as getting the first K elements from the returned list.
+                      </p>
+                      <h3>Parameters</h3>
+                      <table>
+                        <tr>
+                          <td>
+                            <strong><code>url</code></strong>
+                          </td>
+                          <td>
+                            The URL that you want to query (e.g., <code>google.com</code>). If this is parameter is specified, <code>id</code> does not.
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <strong><code>id</code></strong>
+                          </td>
+                          <td>
+                            The ID of the URL you want to query. The ID is the integer MD5 hash of the <code>url</code>. If this parameter is specified, <code>url</code> does not.
+                          </td>
+                        </tr>
+                      </table>
+                      <h3>Example Request</h3>
+                      <p>
+                        <code>http://ec2-52-8-226-123.us-west-1.compute.amazonaws.com:3000/search?url=google.com</code>
+                      </p>
+                      <h3>Example Response</h3>
+                      <p>
+                        <code>
+                          [
+                            {
+                            "Data":
+                              {
+                                "PageRank": "840.8668910315986",
+                                "URL": "google.com",
+                                "VertexId": "492380404"
+                              },
+                            "Neighbors":
+                              {
+                                "FirstDegree":
+                                  [
+                                    "-1706267909",
+                                    "1046483734",
+                                    ...
+                                  ]
+                                "SecondDegree":
+                                  [
+                                    ...
+                                  ]
+                              }
+                            }
+                          ]
+                        </code>
+                      </p>
+
+                      <h2 id='rest-data'>GET /data</h2>
+                      <p>
+                        Returns a single JSON that contains the <code>Data</code> information about the search query. A response object contains information about the <code>Data</code> of the query, which contains three keys: <code>PageRank</code>, <code>URL</code>, and <code>VertexId</code>. It is just a simplified version of the <a href='#rest-search'>/search</a> endpoint that does not contain information about the <code>Neighbors</code>.
+                      </p>
+                      <h3>Parameters</h3>
+                      <table>
+                        <tr>
+                          <td>
+                            <strong><code>url</code></strong>
+                          </td>
+                          <td>
+                            The URL that you want to query (e.g., <code>google.com</code>). If this is parameter is specified, <code>id</code> does not.
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <strong><code>id</code></strong>
+                          </td>
+                          <td>
+                            The ID of the URL you want to query. The ID is the integer MD5 hash of the <code>url</code>. If this parameter is specified, <code>url</code> does not.
+                          </td>
+                        </tr>
+                      </table>
+                      <h3>Example Request</h3>
+                      <p>
+                        <code>http://ec2-52-8-226-123.us-west-1.compute.amazonaws.com:3000/data?url=google.com</code>
+                      </p>
+                      <h3>Example Response</h3>
+                      <p>
+                        <code>
+                          {
+                            "PageRank": "840.8668910315986",
+                            "URL": "google.com",
+                            "VertexId": "492380404"
+                          }
+                        </code>
+                      </p>
+
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div id='about-section' class='about-container tab-pane' role='tabpanel'>
@@ -95,6 +209,8 @@
             </div>
 
           </div>
+
+          <hr>
 
           <div class='container center'>
             <footer>

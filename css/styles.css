@@ -7,6 +7,10 @@ small {
     color: #8F8A8C;
 }
 
+td {
+    padding: 15px;
+}
+
 .header {
     background-color: #16A085;
     color: white;
