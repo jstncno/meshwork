@@ -4,7 +4,7 @@ var hbase = require('hbase');
 var md5 = require('MD5');
 
 var dbPort = 10001;
-var hbaseClient = new hbase.Client({ host: '52.8.106.198', port: dbPort });
+var hbaseClient = new hbase.Client({ host: '52.8.226.123', port: dbPort });
 var websitesTable = new hbase.Table(hbaseClient, 'websites');
 
 app.get('/', function (req, res) {
@@ -35,7 +35,6 @@ var fetchDB = function(req, res, next) {
         var data = {}
         data['Data'] = {}
         data['Neighbors'] = {}
-        data['Top50Neighbors'] = {}
 
         for (index in record) {
             var value = record[index]['$'].toString();
