@@ -18,6 +18,10 @@ import org.apache.hadoop.hbase.{HBaseConfiguration, HTableDescriptor, TableName}
 
 object firstDegreeNeighbors {
     def main(args: Array[String]) {
+        var cores:Int = 28
+        if (args.size > 0) {
+            cores = args(0).toInt
+        }
 
         // setup the Spark Context
         val conf = new SparkConf().setAppName("FindFirstDegreeNeighbors")
@@ -77,7 +81,7 @@ object firstDegreeNeighbors {
         // (VertexIds: String, Neighbors: Array[Long])
         val neighborsByVertexId = vertices.join(neighbors).map {
             case (id, (vid, n)) => (vid, n)
-        }.distinct().repartition(80) // 4 x 20 cores
+        }.distinct().repartition(cores*4) // x4 cores
 
         // Save to HDFS
         /*"hdfs dfs -rm -r -f /data/first-degree-neighbors" !

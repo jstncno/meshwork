@@ -16,6 +16,10 @@ import org.apache.hadoop.hbase.{HBaseConfiguration, HTableDescriptor, TableName}
 
 object secondDegreeNeighbors {
     def main(args: Array[String]) {
+        var cores:Int = 28
+        if (args.size > 0) {
+            cores = args(0).toInt
+        }
 
         // setup the Spark Context
         val sparkConf = new SparkConf().setAppName("FindSecondDegreeNeighbors")
@@ -38,7 +42,7 @@ object secondDegreeNeighbors {
         val vertices = sc.textFile(vertexIdFiles).map { line =>
             val fields = line.split(" ")
             (fields(0).toLong, fields(1))
-        }.distinct().repartition(80) // 4 x 20 cores
+        }.distinct().repartition(cores*4) // x4 cores
 
         // Find second-degree neighbors of each vertex
         // Neighbers represented as Set[VertexId]
