@@ -80,7 +80,7 @@ object firstDegreeNeighbors {
         val neighbors = graph.aggregateMessages[Array[Long]](sendDstIdToSrc, _ ++ _)
 
         // Map VertexIds to URL
-        // (VertexIds: String, Neighbors: Array[Long])
+        // (VertexURL: String, Neighbors: Array[Long])
         val neighborsByVertexId = vertices.join(neighbors).map {
             case (id, (vid, n)) => (vid, n)
         }.distinct().repartition(cores*4) // x4 cores
@@ -92,7 +92,12 @@ object firstDegreeNeighbors {
             val neighborsString = sortedNeighbors.mkString(",")
             record._1+"\t"+neighborsString
         }
-        neighborsByVertexId.map(makeStringRecord).saveAsTextFile(firstDegreeFiles)
+        neighborsByVertexId.mapPartitions { partitions => 
+            for (row <- partitions) {
+                makeStringRecord(row)
+            }
+            partitions
+        }.saveAsTextFile(firstDegreeFiles)
 
         def putInHBase(vertex: (String, Array[Long])): Unit = {
             val hbaseConf = HBaseConfiguration.create()
