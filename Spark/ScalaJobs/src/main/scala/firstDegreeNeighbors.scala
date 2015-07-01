@@ -24,8 +24,10 @@ object firstDegreeNeighbors {
         }
 
         // setup the Spark Context
-        val conf = new SparkConf().setAppName("FindFirstDegreeNeighbors")
-        val sc = new SparkContext(conf)
+        val sparkConf = new SparkConf().setAppName("FindFirstDegreeNeighbors")
+        sparkConf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+        sparkConf.registerKryoClasses(Array(classOf[HBaseConfiguration], classOf[HTable], classOf[ByteBuffer], classOf[Put], classOf[Bytes]))
+        val sc = new SparkContext(sparkConf)
 
         //val warcFileEdges = "hdfs://ip-172-31-10-101:9000/common-crawl/crawl-data/CC-MAIN-2015-18/segments/1429246633512.41/warc/warc-edges-00000"
         val hdfsPath = "hdfs://"+sys.env("HADOOP_IP")+":9000"
@@ -84,11 +86,13 @@ object firstDegreeNeighbors {
         }.distinct().repartition(cores*4) // x4 cores
 
         // Save to HDFS
-        /*"hdfs dfs -rm -r -f /data/first-degree-neighbors" !
-        neighborsByVertexId.map { record =>
-            val neighborsString = record._2.mkString(",")
-            record._1+","+neighborsString
-        }.saveAsTextFile(firstDegreeFiles)*/
+        "hdfs dfs -rm -r -f /data/first-degree-neighbors" !
+        def makeStringRecord(record: (String, Array[Long])): String = {
+            val sortedNeighbors = record._2.sortWith(sortByDecreasingPageRank)
+            val neighborsString = sortedNeighbors.mkString(",")
+            record._1+"\t"+neighborsString
+        }
+        neighborsByVertexId.map(makeStringRecord).saveAsTextFile(firstDegreeFiles)
 
         def putInHBase(vertex: (String, Array[Long])): Unit = {
             val hbaseConf = HBaseConfiguration.create()
@@ -131,11 +135,12 @@ object firstDegreeNeighbors {
             return new String(pageRank1).toDouble > new String(pageRank2).toDouble
         }
 
-        Console.print(neighborsByVertexId.mapPartitions{ partitions => 
-            for (row <- partitions) {
-                putInHBase(row)
-            }
-            partitions
-        }.count())
+        //Console.print(neighborsByVertexId.mapPartitions{ partitions => 
+        //    for (row <- partitions) {
+        //        putInHBase(row)
+        //    }
+        //    partitions
+        //}.count())
+  
     }
 }
