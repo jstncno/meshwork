@@ -53,4 +53,5 @@ Slides are available on [Slideshare](http://www.slideshare.net/JustinCano/justin
 
 # Misc. Resources
 [Insight Data Engineering Fellows Program](http://www.insightdataengineering.com)
+
 [Awesome Data Engineering](https://github.com/igorbarinov/awesome-data-engineering)
