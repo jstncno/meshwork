@@ -52,5 +52,5 @@ The results from the batch processing are stored into [HBase](https://hbase.apac
 Slides are available on [Slideshare](http://www.slideshare.net/JustinCano/justin-cano-demo-50074846).
 
 # Misc. Resources
--[Insight Data Engineering Fellows Program](http://www.insightdataengineering.com)
--[Awesome Data Engineering](https://github.com/igorbarinov/awesome-data-engineering)
+- [Insight Data Engineering Fellows Program](http://www.insightdataengineering.com)
+- [Awesome Data Engineering](https://github.com/igorbarinov/awesome-data-engineering)
