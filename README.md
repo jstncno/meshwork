@@ -2,6 +2,12 @@ Meshwork
 =======
 Mesh + Network = Meshwork
 
+<b>NOTE:</b> The [Insight Data Engineering Fellows Program](http://insightdataengineering.com/) for the 2015 summer session has officially ended. 
+<br>
+As of <b>July 19, 2015</b>, the servers used to run the pipeline for this site have been shut down, so many of the components will not work as expected. 
+<br>
+Please see the screencast on the [home page](http://jcano.me/meshwork) section to watch the demo when it was live.
+
 [Meshwork](http://jcano.me/meshwork) is my big data project as part of [Insight Data Science](http://insightdataengineering.com/)'s Engineering fellowship program from June 2015 through July 2015.
 
 ## What is Meshwork?
