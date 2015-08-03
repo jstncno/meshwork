@@ -11,7 +11,7 @@ Please see the screencast on the [home page](http://jcano.me/meshwork) section t
 [Meshwork](http://jcano.me/meshwork) is my big data project as part of [Insight Data Science](http://insightdataengineering.com/)'s Engineering fellowship program from June 2015 through July 2015.
 
 ## What is Meshwork?
-If you own a website, then you own a piece of the vast internet web graph. When you look at your website's relationships (links) to other websites, then those relationships can be viewed, as what I like to call, a mesh in the internet network. So, Mesh + Network = Meshwork.2
+If you own a website, then you own a piece of the vast internet web graph. When you look at your website's relationships (links) to other websites, then those relationships can be viewed, as what I like to call, a mesh in the internet network. So, Mesh + Network = Meshwork.
 
 Google's 1<sup>st</sup> degree "mesh" graph
 ![google-mesh](github/images/meshgraph.png)
